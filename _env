@@ -1,0 +1,5 @@
+TOKEN_SECRET = mysecret
+DB_USERNAME = test
+DB_PASSWORD = test
+DN_NAME = test
+DB_HOST = test

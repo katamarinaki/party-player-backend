@@ -14,7 +14,8 @@ import { TrackDto } from './track/track.dto'
 export class RoomService {
   constructor(
     @InjectRepository(Room)
-    private readonly roomRepository: Repository<Room>) { }
+    private readonly roomRepository: Repository<Room>,
+  ) { }
 
   async getById(id: string): Promise<Room> {
     return this.roomRepository.findOne(id)

@@ -1,9 +1,9 @@
 import { Module, MiddlewareConsumer, RequestMethod } from '@nestjs/common'
-import { RoomModule } from './rooms/room.module'
+import { RoomModule } from './room/room.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Connection } from 'typeorm'
-import { RoomMiddleware } from './rooms/room.middleware'
-import { RoomController } from './rooms/room.controller'
+import { RoomMiddleware } from './room/room.middleware'
+import { RoomController } from './room/room.controller'
 
 const dbUsername = 'admin'
 const dbPassword = 'gw55rs55'

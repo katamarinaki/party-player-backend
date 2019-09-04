@@ -3,6 +3,7 @@ import { Exclude } from 'class-transformer'
 import { CreateRoomDto } from './dto/create-room.dto'
 import nanoid from 'nanoid/generate'
 import * as bcrypt from 'bcrypt'
+import { Track } from './track/track.entity'
 
 const saltRounds = 10
 
@@ -26,12 +27,16 @@ export class Room {
   @Column()
   users: string[]
 
+  @Column()
+  playlist: Track[]
+
   static async createRoomFromDto(dtoRoom: CreateRoomDto): Promise<Room> {
     const createdRoom = new Room()
     createdRoom.code = nanoid('0123456789abcdefghopmn', 4)
     createdRoom.name = dtoRoom.name === '' ? `Room ${createdRoom.code}` : dtoRoom.name
     createdRoom.password = await bcrypt.hash(dtoRoom.password ? dtoRoom.password : '', saltRounds)
     createdRoom.users = []
+    createdRoom.playlist = []
     return createdRoom
   }
 }

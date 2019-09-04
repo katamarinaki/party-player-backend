@@ -21,7 +21,8 @@ export class RoomMiddleware implements NestMiddleware {
       if (!room) {
         throw new NotFoundException('Invalid Room ID')
       }
-      req.body = { room, userID: decodedToken.userID }
+      req.body.room = room
+      req.body.userID = decodedToken.userID
       next()
     } catch (error) {
       throw new ForbiddenException('Invalid token')

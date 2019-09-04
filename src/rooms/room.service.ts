@@ -7,6 +7,9 @@ import { JoinRoomDto } from './dto/join-room.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as jwt from 'jsonwebtoken'
 import { AccessToken } from './token/token.class'
+import { Track } from './track/track.entity'
+import { TrackDto } from './track/track.dto'
+import nanoid from 'nanoid/generate'
 
 @Injectable()
 export class RoomService {
@@ -20,6 +23,12 @@ export class RoomService {
 
   async getByCode(code: string): Promise<Room> {
     return this.roomRepository.findOne({ code })
+  }
+
+  async addTrack(trackDto: TrackDto, room: Room): Promise<Room> {
+    const track = Track.createTrackFromDto(trackDto)
+    room.playlist.push(track)
+    return await this.roomRepository.save(room)
   }
 
   async addUserAndSave(room: Room, userID: string): Promise<Room> {

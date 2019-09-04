@@ -12,6 +12,7 @@ import { RoomService } from './room.service'
 import { JoinRoomDto } from './dto/join-room.dto'
 import nanoid from 'nanoid'
 import { Room } from './room.entity'
+import { TrackDto } from './track/track.dto'
 
 @Controller('rooms')
 export class RoomController {
@@ -41,6 +42,12 @@ export class RoomController {
    @Get()
    async getRoom(@Body('room') room: Room) {
      return room
+   }
+
+   @UseInterceptors(ClassSerializerInterceptor)
+   @Post('add_track')
+   async addTrack(@Body() trackDto: TrackDto, @Body('room') room: Room) {
+     return await this.roomService.addTrack(trackDto, room)
    }
 
   // @Put(':id')

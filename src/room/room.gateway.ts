@@ -3,23 +3,32 @@ import {
   WebSocketGateway,
   WebSocketServer,
   WsResponse,
-} from '@nestjs/websockets';
-import { from, Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { Client, Server } from 'socket.io';
-
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+} from '@nestjs/websockets'
+import { from, Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
+import { Client, Server } from 'socket.io'
+import { Track } from './track/track.entity'
+import { RoomService } from './room.service'
+// 3001, {
+//   transports: ['websocket'],
+// }
 @WebSocketGateway()
 export class EventsGateway {
-  @WebSocketServer()
-  server: Server;
 
-  @SubscribeMessage('events')
-  findAll(client: Client, data: any): Observable<WsResponse<number>> {
-    return from([1, 2, 3]).pipe(map(item => ({ event: 'events', data: item })));
+  @WebSocketServer()
+  server: Server
+
+  sendNewTrack(roomCode: string, track: Track) {
+    this.server.to(roomCode).emit('newtrack', track)
   }
 
-  @SubscribeMessage('identity')
-  async identity(client: Client, data: number): Promise<number> {
-    return data;
+  sendLike(roomCode: string, trackID: string) {
+    this.server.to(roomCode).emit('like', trackID)
+  }
+
+  sendDislike(roomCode: string, trackID: string) {
+    this.server.to(roomCode).emit('dislike', trackID)
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, Next } from '@nestjs/common'
+import { Injectable, Next, NotFoundException } from '@nestjs/common'
 import { CreateRoomDto } from './dto/create-room.dto'
 import { Repository, ObjectID } from 'typeorm'
 import { Room } from './room.entity'
@@ -9,12 +9,14 @@ import * as jwt from 'jsonwebtoken'
 import { AccessToken } from './token/token.class'
 import { Track } from './track/track.entity'
 import { TrackDto } from './track/track.dto'
+import { EventsGateway } from './room.gateway'
 
 @Injectable()
 export class RoomService {
   constructor(
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
+    private readonly socketGateway: EventsGateway,
   ) { }
 
   async getById(id: string): Promise<Room> {
@@ -28,6 +30,31 @@ export class RoomService {
   async addTrack(trackDto: TrackDto, room: Room): Promise<Room> {
     const track = Track.createTrackFromDto(trackDto)
     room.playlist.push(track)
+    this.socketGateway.sendNewTrack(room.code, track)
+    return await this.roomRepository.save(room)
+  }
+
+  async likeTrack(trackID: string, room: Room): Promise<Room> {
+    const likedTrack = room.playlist.find((track) => {
+      return track.id === trackID
+    })
+    if (!likedTrack) {
+      throw new NotFoundException('Track not found')
+    }
+    likedTrack.likes++
+    this.socketGateway.sendLike(room.code, trackID)
+    return await this.roomRepository.save(room)
+  }
+
+  async dislikeTrack(trackID: string, room: Room): Promise<Room> {
+    const dislikedTrack = room.playlist.find((track) => {
+      return track.id === trackID
+    })
+    dislikedTrack.dislikes++
+    if (!dislikedTrack) {
+      throw new NotFoundException('Track not found')
+    }
+    this.socketGateway.sendDislike(room.code, trackID)
     return await this.roomRepository.save(room)
   }
 

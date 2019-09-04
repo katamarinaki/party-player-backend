@@ -9,7 +9,6 @@ import * as jwt from 'jsonwebtoken'
 import { AccessToken } from './token/token.class'
 import { Track } from './track/track.entity'
 import { TrackDto } from './track/track.dto'
-import nanoid from 'nanoid/generate'
 
 @Injectable()
 export class RoomService {

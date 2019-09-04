@@ -17,12 +17,15 @@ export class RoomMiddleware implements NestMiddleware {
     }
     try {
       const decodedToken = jwt.verify(token, 'mysecret') as ITokenPayload
-      const room = await this.roomService.getById(decodedToken.roomID)
+      const { roomID, userID } = decodedToken
+      const room = await this.roomService.getById(roomID)
       if (!room) {
         throw new NotFoundException('Invalid Room ID')
       }
-      req.body.room = room
-      req.body.userID = decodedToken.userID
+      req.body.context = {
+        room,
+        userID,
+      }
       next()
     } catch (error) {
       throw new ForbiddenException('Invalid token')

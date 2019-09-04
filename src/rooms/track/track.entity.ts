@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryColumn, Generated } from 'typeorm'
+import { Entity, Column, PrimaryColumn } from 'typeorm'
 import { TrackDto } from './track.dto'
 import nanoid from 'nanoid/generate'
 

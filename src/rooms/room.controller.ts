@@ -13,6 +13,7 @@ import { JoinRoomDto } from './dto/join-room.dto'
 import nanoid from 'nanoid'
 import { Room } from './room.entity'
 import { TrackDto } from './track/track.dto'
+import { RoomContext } from './room.context'
 
 @Controller('rooms')
 export class RoomController {
@@ -46,8 +47,8 @@ export class RoomController {
 
    @UseInterceptors(ClassSerializerInterceptor)
    @Post('add_track')
-   async addTrack(@Body() trackDto: TrackDto, @Body('room') room: Room) {
-     return await this.roomService.addTrack(trackDto, room)
+   async addTrack(@Body() trackDto: TrackDto, @Body('context') ctx: RoomContext) {
+     return await this.roomService.addTrack(trackDto, ctx.room)
    }
 
   // @Put(':id')

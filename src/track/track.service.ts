@@ -16,7 +16,7 @@ export class TrackService {
   async addTrack(trackDto: TrackDto, room: Room): Promise<Playlist> {
     const track = new Track(trackDto)
     room.playlist.tracks.push(track)
-    this.trackGateway.sendNewTrack(room.code, track)
+    this.trackGateway.sendNewTrack(room.code, room.playlist)
     await this.roomService.save(room)
     return room.playlist
   }
@@ -29,7 +29,8 @@ export class TrackService {
       throw new NotFoundException('Track not found')
     }
     likedTrack.likes++
-    this.trackGateway.sendLike(room.code, trackID)
+    room.playlist = this.sortPlaylist(room.playlist)
+    this.trackGateway.sendLike(room.code, room.playlist)
     await this.roomService.save(room)
     return room.playlist
   }
@@ -42,9 +43,25 @@ export class TrackService {
     if (!dislikedTrack) {
       throw new NotFoundException('Track not found')
     }
-    this.trackGateway.sendDislike(room.code, trackID)
+    room.playlist = this.sortPlaylist(room.playlist)
+    this.trackGateway.sendDislike(room.code, room.playlist)
     await this.roomService.save(room)
     return room.playlist
+  }
+
+  sortPlaylist(playlist: Playlist): Playlist {
+    const sortedPlaylist = playlist
+    sortedPlaylist.tracks.sort((trackA, trackB) => {
+      if ((trackA.likes - trackA.dislikes) > (trackB.likes - trackB.dislikes)) {
+        return 1
+      } else if (trackA.likes > trackB.likes) {
+        return 1
+      } else if (trackA.dislikes < trackB.dislikes) {
+        return 1
+      }
+      return -1
+    })
+    return sortedPlaylist
   }
 
 }

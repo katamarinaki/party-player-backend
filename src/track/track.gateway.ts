@@ -4,7 +4,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server } from 'socket.io'
-import { Track } from './class/track.class'
+import { Playlist } from './class/playlist.class'
 
 @WebSocketGateway()
 export class TrackGateway {
@@ -12,15 +12,15 @@ export class TrackGateway {
   @WebSocketServer()
   server: Server
 
-  sendNewTrack(roomCode: string, track: Track) {
-    this.server.to(roomCode).emit('newtrack', track)
+  sendNewTrack(roomCode: string, playlist: Playlist) {
+    this.server.to(roomCode).emit('newtrack', playlist)
   }
 
-  sendLike(roomCode: string, trackID: string) {
-    this.server.to(roomCode).emit('like', trackID)
+  sendLike(roomCode: string, playlist: Playlist) {
+    this.server.to(roomCode).emit('like', playlist)
   }
 
-  sendDislike(roomCode: string, trackID: string) {
-    this.server.to(roomCode).emit('dislike', trackID)
+  sendDislike(roomCode: string, playlist: Playlist) {
+    this.server.to(roomCode).emit('dislike', playlist)
   }
 }

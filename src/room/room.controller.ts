@@ -61,19 +61,4 @@ export class RoomController {
   async dislikeTrack(@Body('trackID') trackID: string, @Body() ctx: RoomContext) {
     await this.roomService.dislikeTrack(trackID, ctx.room)
   }
-
-  // @Put(':id')
-  // async updateRoom(@Res() res, @Query('RoomID') roomID, @Body() createRoomDto: CreateRoomDto) {
-  //   const updatedRoom = await this.roomService.updateRoom(roomID, createRoomDto);
-  //   if (!updatedRoom) { throw new NotFoundException('Room does not exist'); }
-  //   return res.status(HttpStatus.OK).json({
-  //     message: 'Room updated',
-  //     room: updatedRoom,
-  //   });
-  // }
-
-  // @Delete(':id')
-  // removeRoom(@Param('id') id: string) {
-  //   return `This action removes a #${id} room`;
-  // }
 }

@@ -12,6 +12,7 @@ export class TrackGateway {
   @WebSocketServer()
   server: Server
 
+  // TO DO - превратить все три метода в один метод playlistChanges
   sendNewTrack(roomCode: string, playlist: Playlist) {
     this.server.to(roomCode).emit('newtrack', playlist)
   }

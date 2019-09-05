@@ -27,9 +27,10 @@ export class RoomService {
     return await this.roomRepository.save(room)
   }
 
-  async generateToken(room: Room, userID: string): Promise<AccessToken> {
+  async generateToken(room: Room, userID: string, isAdmin: boolean): Promise<AccessToken> {
     const accessToken = jwt.sign({
       roomID: room.id,
+      isAdmin,
       userID,
     }, process.env.TOKEN_SECRET)
     return { accessToken }

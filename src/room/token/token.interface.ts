@@ -1,4 +1,5 @@
 export interface ITokenPayload {
   roomID: string
-  userID: string
+  userID: string,
+  isAdmin: boolean
 }

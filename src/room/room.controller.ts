@@ -23,7 +23,7 @@ export class RoomController {
   async createRoom(@Body() room: CreateRoomDto) {
     const userID = nanoid()
     const newRoom = await this.roomService.create(room, userID)
-    return await this.roomService.generateToken(newRoom, userID)
+    return await this.roomService.generateToken(newRoom, userID, true)
   }
 
   @Post('join')
@@ -31,7 +31,7 @@ export class RoomController {
     const userID = nanoid()
     const joinedRoom = await this.roomService.join(room, userID)
     if (joinedRoom) {
-      return await this.roomService.generateToken(joinedRoom, userID)
+      return await this.roomService.generateToken(joinedRoom, userID, false)
     } else {
       throw new BadRequestException('Incorrect code or password')
     }

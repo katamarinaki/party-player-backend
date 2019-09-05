@@ -16,8 +16,8 @@ export class RoomMiddleware implements NestMiddleware {
       throw new ForbiddenException('Token not found')
     }
     try {
-      const decodedToken = jwt.verify(token, 'mysecret') as ITokenPayload
-      const { roomID, userID } = decodedToken
+      const decodedToken = jwt.verify(token, process.env.TOKEN_SECRET) as ITokenPayload
+      const { roomID, userID, isAdmin } = decodedToken
       const room = await this.roomService.getById(roomID)
       if (!room) {
         throw new NotFoundException('Invalid Room ID')
@@ -25,6 +25,7 @@ export class RoomMiddleware implements NestMiddleware {
       req.body.context = {
         room,
         userID,
+        isAdmin,
       }
       next()
     } catch (error) {

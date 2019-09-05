@@ -7,16 +7,13 @@ import { RoomController } from './room/room.controller'
 import { TrackController } from './track/track.controller'
 import { TrackModule } from './track/track.module'
 
-const dbUsername = 'admin'
-const dbPassword = 'gw55rs55'
-const dbName = 'partyplayer'
-const dbHost = 'cluster0-illl5.mongodb.net'
+const { DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST } = process.env
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
       type: 'mongodb',
-      url: `mongodb+srv://${dbUsername}:${dbPassword}@${dbHost}/${dbName}?retryWrites=true&w=majority&useUnifiedTopology=true`,
+      url: `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}?retryWrites=true&w=majority&useUnifiedTopology=true`,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       useNewUrlParser: true,
       synchronize: true,

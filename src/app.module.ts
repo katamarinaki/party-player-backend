@@ -4,6 +4,8 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { Connection } from 'typeorm'
 import { RoomMiddleware } from './room/room.middleware'
 import { RoomController } from './room/room.controller'
+import { TrackController } from './track/track.controller'
+import { TrackModule } from './track/track.module'
 
 const dbUsername = 'admin'
 const dbPassword = 'gw55rs55'
@@ -20,6 +22,7 @@ const dbHost = 'cluster0-illl5.mongodb.net'
       synchronize: true,
     }),
     RoomModule,
+    TrackModule,
   ],
 })
 export class AppModule {
@@ -31,6 +34,6 @@ export class AppModule {
         { path: 'rooms/create', method: RequestMethod.POST },
         { path: 'rooms/join', method: RequestMethod.POST },
       )
-      .forRoutes(RoomController)
+      .forRoutes(RoomController, TrackController)
   }
 }

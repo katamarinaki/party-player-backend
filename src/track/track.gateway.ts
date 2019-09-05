@@ -2,20 +2,12 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  WsResponse,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
 } from '@nestjs/websockets'
-import { from, Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
-import { Client, Server } from 'socket.io'
-import { Track } from './track/track.entity'
-import { RoomService } from './room.service'
-// 3001, {
-//   transports: ['websocket'],
-// }
+import { Server } from 'socket.io'
+import { Track } from './class/track.class'
+
 @WebSocketGateway()
-export class EventsGateway {
+export class TrackGateway {
 
   @WebSocketServer()
   server: Server

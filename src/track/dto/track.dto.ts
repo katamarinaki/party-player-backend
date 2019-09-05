@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsUrl } from 'class-validator'
 
 export class TrackDto {
-  id: string
+  readonly id: string
 
   @IsNotEmpty()
   readonly name: string

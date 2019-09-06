@@ -1,4 +1,4 @@
-import { Controller, Body, Post } from '@nestjs/common'
+import { Controller, Body, Post, Get } from '@nestjs/common'
 import { TrackService } from './track.service'
 import { RoomContext } from '../room/room.context'
 import { TrackDto } from './dto/track.dto'
@@ -15,12 +15,17 @@ export class TrackController {
   }
 
   @Post('like')
-  async likeTrack(@Body('trackID') trackID: string, @Body() ctx: RoomContext) {
+  async likeTrack(@Body('trackID') trackID: string, @Body('context') ctx: RoomContext) {
     return await this.trackService.likeTrack(trackID, ctx.userID, ctx.room)
   }
 
   @Post('dislike')
-  async dislikeTrack(@Body('trackID') trackID: string, @Body() ctx: RoomContext) {
+  async dislikeTrack(@Body('trackID') trackID: string, @Body('context') ctx: RoomContext) {
     return await this.trackService.dislikeTrack(trackID, ctx.userID, ctx.room)
   }
+
+  // @Get('next_track')
+  // async playNextTrack(@Body() ctx: RoomContext) {
+  //   this.trackService.playNextTrack(ctx.room.playlist)
+  // }
 }

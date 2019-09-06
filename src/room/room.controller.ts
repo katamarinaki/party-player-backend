@@ -11,7 +11,7 @@ import { CreateRoomDto } from './dto/create-room.dto'
 import { RoomService } from './room.service'
 import { JoinRoomDto } from './dto/join-room.dto'
 import nanoid from 'nanoid'
-import { Room } from './room.entity'
+import { RoomContext } from './room.context'
 
 @Controller('rooms')
 export class RoomController {
@@ -39,7 +39,7 @@ export class RoomController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  async getRoom(@Body('room') room: Room) {
-    return room
+  async getRoom(@Body('context') ctx: RoomContext) {
+    return ctx.room
   }
 }

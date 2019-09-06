@@ -36,7 +36,7 @@ export class Room {
     createdRoom.name = dtoRoom.name === '' ? `Room ${createdRoom.code}` : dtoRoom.name
     createdRoom.password = await bcrypt.hash(dtoRoom.password ? dtoRoom.password : '', saltRounds)
     createdRoom.users = []
-    createdRoom.playlist.tracks = []
+    createdRoom.playlist = new Playlist([])
     return createdRoom
   }
 }

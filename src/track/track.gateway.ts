@@ -5,7 +5,7 @@ import {
 } from '@nestjs/websockets'
 import { Server } from 'socket.io'
 import { Playlist } from './class/playlist.class'
-import { ParsedPlaylist } from './class/parsedplaylist.class';
+import { ParsedPlaylist } from './class/parsedplaylist.class'
 
 @WebSocketGateway()
 export class TrackGateway {

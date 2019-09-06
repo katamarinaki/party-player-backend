@@ -16,11 +16,11 @@ export class TrackController {
 
   @Post('like')
   async likeTrack(@Body('trackID') trackID: string, @Body() ctx: RoomContext) {
-    return await this.trackService.likeTrack(trackID, ctx.room)
+    return await this.trackService.likeTrack(trackID, ctx.userID, ctx.room)
   }
 
   @Post('dislike')
   async dislikeTrack(@Body('trackID') trackID: string, @Body() ctx: RoomContext) {
-    return await this.trackService.dislikeTrack(trackID, ctx.room)
+    return await this.trackService.dislikeTrack(trackID, ctx.userID, ctx.room)
   }
 }

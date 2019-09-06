@@ -6,13 +6,13 @@ export class Track {
     this.id = nanoid('0123456789', 4)
     this.name = trackDto.name
     this.url = trackDto.url
-    this.likes = 0
-    this.dislikes = 0
+    this.likes = []
+    this.dislikes = []
   }
 
   readonly id: string
   readonly name: string
   readonly url: string
-  likes: number
-  dislikes: number
+  likes: string[]
+  dislikes: string[]
 }

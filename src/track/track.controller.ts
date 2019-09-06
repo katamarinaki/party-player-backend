@@ -33,7 +33,7 @@ export class TrackController {
     }
   }
 
-  @Get('next_track')
+  @Get('next')
   async playNextTrack(@Body() ctx: RoomContext) {
     const trackChanged = this.trackService.playNextTrack(ctx.room)
     if (!trackChanged) {

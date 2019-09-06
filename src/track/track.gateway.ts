@@ -5,6 +5,7 @@ import {
 } from '@nestjs/websockets'
 import { Server } from 'socket.io'
 import { Playlist } from './class/playlist.class'
+import { ParsedPlaylist } from './class/parsedplaylist.class';
 
 @WebSocketGateway()
 export class TrackGateway {
@@ -13,6 +14,7 @@ export class TrackGateway {
   server: Server
 
   onPlaylistChanges(roomCode: string, playlist: Playlist) {
-    this.server.to(roomCode).emit('playlistchanged', playlist)
+    const parsedPlaylist = new ParsedPlaylist(playlist)
+    this.server.to(roomCode).emit('playlistchanged', parsedPlaylist)
   }
 }

@@ -13,7 +13,7 @@ export class TrackGateway {
   @WebSocketServer()
   server: Server
 
-  onPlaylistChanges(roomCode: string, playlist: Playlist) {
+  onPlaylistChange(roomCode: string, playlist: Playlist) {
     const parsedPlaylist = new ParsedPlaylist(playlist)
     this.server.to(roomCode).emit('playlistchanged', parsedPlaylist)
   }

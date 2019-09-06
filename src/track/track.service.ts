@@ -13,12 +13,15 @@ export class TrackService {
     private readonly roomService: RoomService,
   ) {}
 
-  async addTrack(trackDto: TrackDto, room: Room): Promise<Playlist> {
+  async addTrack(trackDto: TrackDto, room: Room): Promise<boolean> {
     const track = new Track(trackDto)
     room.playlist.tracks.push(track)
-    this.trackGateway.onPlaylistChanges(room.code, room.playlist)
-    await this.roomService.save(room)
-    return room.playlist
+    this.trackGateway.onPlaylistChange(room.code, room.playlist)
+    const savedRoom = await this.roomService.save(room)
+    if (savedRoom) {
+      return true
+    }
+    return false
   }
 
   async likeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
@@ -37,7 +40,7 @@ export class TrackService {
         track.dislikes.splice(dislikeIndex, 1)
       }
       this.sortPlaylist(room.playlist)
-      this.trackGateway.onPlaylistChanges(room.code, room.playlist)
+      this.trackGateway.onPlaylistChange(room.code, room.playlist)
       await this.roomService.save(room)
       return true
     }
@@ -60,7 +63,7 @@ export class TrackService {
         track.likes.splice(likeIndex, 1)
       }
       this.sortPlaylist(room.playlist)
-      this.trackGateway.onPlaylistChanges(room.code, room.playlist)
+      this.trackGateway.onPlaylistChange(room.code, room.playlist)
       await this.roomService.save(room)
       return true
     }

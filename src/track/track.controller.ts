@@ -33,8 +33,8 @@ export class TrackController {
     }
   }
 
-  // @Get('next_track')
-  // async playNextTrack(@Body() ctx: RoomContext) {
-  //   this.trackService.playNextTrack(ctx.room.playlist)
-  // }
+  @Get('next_track')
+  async playNextTrack(@Body() ctx: RoomContext) {
+    this.trackService.playNextTrack(ctx.room.playlist)
+  }
 }

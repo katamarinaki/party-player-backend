@@ -1,5 +1,5 @@
 export class CreateRoomDto {
-  public readonly name: string
+  readonly name: string
 
-  public readonly password: string
+  readonly password: string
 }

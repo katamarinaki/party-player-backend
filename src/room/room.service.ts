@@ -45,7 +45,7 @@ export class RoomService {
     const { code, password } = joinRoomDto
     const room = await this.getByCode(code)
     if (room) {
-      const passwordsMatches = await bcrypt.compare(password, room.password)
+      const passwordsMatches = await bcrypt.compare(!password ? '' : password, room.password)
       if (passwordsMatches) {
         return await this.addUserAndSave(room, userID)
       }

@@ -25,6 +25,7 @@ export class Room {
   code: string
 
   @Column()
+  @Exclude()
   users: string[]
 
   @Column()
@@ -33,8 +34,8 @@ export class Room {
   static async createRoomFromDto(dtoRoom: CreateRoomDto): Promise<Room> {
     const createdRoom = new Room()
     createdRoom.code = nanoid('0123456789abcdefghopmn', 4)
-    createdRoom.name = dtoRoom.name === '' ? `Room ${createdRoom.code}` : dtoRoom.name
-    createdRoom.password = await bcrypt.hash(dtoRoom.password ? dtoRoom.password : '', saltRounds)
+    createdRoom.name = !dtoRoom.name || dtoRoom.name === '' ? `Room ${createdRoom.code}` : dtoRoom.name
+    createdRoom.password = await bcrypt.hash(!dtoRoom.password ? '' : dtoRoom.password, saltRounds)
     createdRoom.users = []
     createdRoom.playlist = new Playlist([])
     return createdRoom

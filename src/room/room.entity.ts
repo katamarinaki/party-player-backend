@@ -25,7 +25,6 @@ export class Room {
   code: string
 
   @Column()
-  @Exclude()
   users: string[]
 
   @Column()

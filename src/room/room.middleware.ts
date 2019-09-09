@@ -25,7 +25,7 @@ export class RoomMiddleware implements NestMiddleware {
       req.body.context = {
         room,
         userID,
-        isAdmin,
+        isAdmin: isAdmin || false,
       }
       next()
     } catch (error) {

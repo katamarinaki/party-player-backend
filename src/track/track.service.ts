@@ -1,0 +1,105 @@
+import { Injectable, NotFoundException } from '@nestjs/common'
+import { TrackDto } from './dto/track.dto'
+import { Room } from '../room/room.entity'
+import { Playlist } from './class/playlist.class'
+import { Track } from './class/track.class'
+import { TrackGateway } from './track.gateway'
+import { RoomService } from '../room/room.service'
+
+@Injectable()
+export class TrackService {
+  constructor(
+    private readonly trackGateway: TrackGateway,
+    private readonly roomService: RoomService,
+  ) {}
+
+  async addTrack(trackDto: TrackDto, room: Room): Promise<boolean> {
+    const track = new Track(trackDto)
+    room.playlist.tracks.push(track)
+    const savedRoom = await this.roomService.save(room)
+    if (savedRoom) {
+      this.trackGateway.onPlaylistChange(room.code, room.playlist)
+      return true
+    }
+    return false
+  }
+
+  async likeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
+    const track = room.playlist.tracks.find((trackObject) => {
+      return trackObject.id === trackID
+    })
+    if (!track) {
+      // throw new NotFoundException('Track not found')
+      return false
+    }
+    const isLiked = track.likes.includes(userID)
+    if (!isLiked) {
+      track.likes.push(userID)
+      const dislikeIndex = track.dislikes.indexOf(userID)
+      if (dislikeIndex >= 0) {
+        track.dislikes.splice(dislikeIndex, 1)
+      }
+      this.sortPlaylist(room.playlist)
+      const savedRoom = await this.roomService.save(room)
+      if (savedRoom) {
+        this.trackGateway.onPlaylistChange(room.code, room.playlist)
+        return true
+      }
+    }
+    return false
+  }
+
+  async dislikeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
+    const track = room.playlist.tracks.find((trackObject) => {
+      return trackObject.id === trackID
+    })
+    if (!track) {
+      // throw new NotFoundException('Track not found')
+      return false
+    }
+    const isDisliked = track.likes.includes(userID)
+    if (!isDisliked) {
+      track.dislikes.push(userID)
+      const likeIndex = track.dislikes.indexOf(userID)
+      if (likeIndex >= 0) {
+        track.likes.splice(likeIndex, 1)
+      }
+      this.sortPlaylist(room.playlist)
+      const savedRoom = await this.roomService.save(room)
+      if (savedRoom) {
+        this.trackGateway.onPlaylistChange(room.code, room.playlist)
+        return true
+      }
+    }
+    return false
+  }
+
+  sortPlaylist(playlist: Playlist) {
+    const newPlaylist = playlist
+    const firstTrack = newPlaylist.tracks.shift()
+    newPlaylist.tracks.sort((trackA, trackB) => {
+      if ((trackA.likes.length - trackA.dislikes.length) > (trackB.likes.length - trackB.dislikes.length)) {
+        return 1
+      } else if (trackA.likes.length > trackB.likes.length) {
+        return 1
+      } else if (trackA.dislikes.length < trackB.dislikes.length) {
+        return 1
+      }
+      return -1
+    })
+    newPlaylist.tracks.unshift(firstTrack)
+    return newPlaylist
+  }
+
+  async playNextTrack(room: Room): Promise<boolean> {
+    room.playlist.tracks.shift()
+    this.sortPlaylist(room.playlist)
+    const savedRoom = await this.roomService.save(room)
+    if (savedRoom) {
+      this.trackGateway.onPlaylistChange(room.code, room.playlist)
+      return true
+    }
+    return false
+  }
+
+}

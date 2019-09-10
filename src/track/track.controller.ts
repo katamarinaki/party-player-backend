@@ -1,7 +1,8 @@
-import { Controller, Body, Post, Get, BadRequestException } from '@nestjs/common'
+import { Controller, Body, Post, Get, BadRequestException, UseGuards } from '@nestjs/common'
 import { TrackService } from './track.service'
 import { RoomContext } from '../room/room.context'
 import { TrackDto } from './dto/track.dto'
+import { AdminGuard } from '../guards/admin.guard'
 
 @Controller('tracks')
 export class TrackController {
@@ -33,7 +34,13 @@ export class TrackController {
     }
   }
 
+  @Get()
+  async getPlaylist(@Body('context') ctx: RoomContext) {
+    return ctx.room.playlist
+  }
+
   @Get('next')
+  @UseGuards(AdminGuard)
   async playNextTrack(@Body() ctx: RoomContext) {
     const trackChanged = this.trackService.playNextTrack(ctx.room)
     if (!trackChanged) {

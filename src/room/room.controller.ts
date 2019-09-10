@@ -42,9 +42,4 @@ export class RoomController {
   async getRoom(@Body('context') ctx: RoomContext) {
     return ctx.room
   }
-
-  @Get('playlist')
-  async getRoomPlaylist(@Body('context') ctx: RoomContext) {
-    return ctx.room.playlist
-  }
 }

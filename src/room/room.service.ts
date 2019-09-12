@@ -28,12 +28,13 @@ export class RoomService {
   }
 
   async generateToken(room: Room, userID: string, isAdmin: boolean): Promise<AccessToken> {
+    const roomCode = room.code
     const accessToken = jwt.sign({
       roomID: room.id,
       isAdmin,
       userID,
     }, process.env.TOKEN_SECRET)
-    return { accessToken }
+    return { accessToken, roomCode }
   }
 
   async create(room: CreateRoomDto, userID: string): Promise<Room> {

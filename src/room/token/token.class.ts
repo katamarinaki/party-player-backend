@@ -1,3 +1,4 @@
 export class AccessToken {
-  public readonly accessToken: string
+  readonly accessToken: string
+  readonly roomCode: string
 }

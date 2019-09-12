@@ -30,6 +30,7 @@ export class AppModule {
       .exclude(
         { path: 'rooms/create', method: RequestMethod.POST },
         { path: 'rooms/join', method: RequestMethod.POST },
+        { path: 'rooms/:code', method: RequestMethod.GET },
       )
       .forRoutes(RoomController, TrackController)
   }

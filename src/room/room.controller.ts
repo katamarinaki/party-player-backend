@@ -6,6 +6,7 @@ import {
   Get,
   UseInterceptors,
   ClassSerializerInterceptor,
+  Param,
 } from '@nestjs/common'
 import { CreateRoomDto } from './dto/create-room.dto'
 import { RoomService } from './room.service'
@@ -39,7 +40,13 @@ export class RoomController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  async getRoom(@Body('context') ctx: RoomContext) {
+  async getRoomByToken(@Body('context') ctx: RoomContext) {
     return ctx.room
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Get(':code')
+  async getRoomByCode(@Param() params: any) {
+    return this.roomService.getByCode(params.code)
   }
 }

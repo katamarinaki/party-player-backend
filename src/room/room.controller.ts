@@ -46,4 +46,10 @@ export class RoomController {
     const room = await this.roomService.getByCode(params.code)
     return this.roomService.parseRoom(room)
   }
+
+  @Post('voteforskip')
+  async voteForSkip(@Body('context') ctx: RoomContext) {
+    const { room, userID } = ctx
+    return this.roomService.voteForSkip(room, userID)
+  }
 }

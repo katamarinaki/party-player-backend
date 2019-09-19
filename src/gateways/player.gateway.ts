@@ -4,11 +4,11 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets'
 import { Server } from 'socket.io'
-import { Track } from './class/track.class'
-import { ParsedTrack } from './class/parsedtrack.class'
+import { Track } from '../track/class/track.class'
+import { ParsedTrack } from '../track/class/parsedtrack.class'
 
 @WebSocketGateway()
-export class TrackGateway {
+export class PlayerGateway {
 
   @WebSocketServer()
   server: Server

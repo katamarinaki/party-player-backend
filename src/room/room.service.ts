@@ -27,6 +27,18 @@ export class RoomService {
     return new ParsedRoom(room)
   }
 
+  async voteForSkip(room: Room, userID: string): Promise<string> {
+    const isVoted = room.votesForSkip.includes(userID)
+    if (!isVoted) {
+      room.votesForSkip.push(userID)
+      await this.save(room)
+      return 'voted'
+    } else {
+      room.votesForSkip.splice(room.votesForSkip.indexOf(userID), 1)
+      return 'unvoted'
+    }
+  }
+
   async addUserAndSave(room: Room, userID: string): Promise<Room> {
     room.users.push(userID)
     return await this.roomRepository.save(room)

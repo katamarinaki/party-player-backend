@@ -27,6 +27,9 @@ export class Room {
   @Column()
   playlist: Track[]
 
+  @Column()
+  votesForSkip: string[]
+
   static async createRoomFromDto(dtoRoom: CreateRoomDto): Promise<Room> {
     const createdRoom = new Room()
     createdRoom.code = nanoid('0123456789abcdefghopmn', 4)
@@ -34,6 +37,7 @@ export class Room {
     createdRoom.password = await bcrypt.hash(!dtoRoom.password ? '' : dtoRoom.password, saltRounds)
     createdRoom.users = []
     createdRoom.playlist = []
+    createdRoom.votesForSkip = []
     return createdRoom
   }
 }

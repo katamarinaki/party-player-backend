@@ -2,13 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common'
 import { TrackDto } from './dto/track.dto'
 import { Room } from '../room/room.entity'
 import { Track } from './class/track.class'
-import { TrackGateway } from './track.gateway'
+import { PlayerGateway } from '../gateways/player.gateway'
 import { RoomService } from '../room/room.service'
 
 @Injectable()
 export class TrackService {
   constructor(
-    private readonly trackGateway: TrackGateway,
+    private readonly playerGateway: PlayerGateway,
     private readonly roomService: RoomService,
   ) {}
 
@@ -17,7 +17,7 @@ export class TrackService {
     room.playlist.push(track)
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {
-      this.trackGateway.onPlaylistChange(room.code, room.playlist)
+      this.playerGateway.onPlaylistChange(room.code, room.playlist)
       return true
     }
     return false
@@ -41,7 +41,7 @@ export class TrackService {
       this.sortPlaylist(room.playlist)
       const savedRoom = await this.roomService.save(room)
       if (savedRoom) {
-        this.trackGateway.onPlaylistChange(room.code, room.playlist)
+        this.playerGateway.onPlaylistChange(room.code, room.playlist)
         return true
       }
     }
@@ -66,7 +66,7 @@ export class TrackService {
       this.sortPlaylist(room.playlist)
       const savedRoom = await this.roomService.save(room)
       if (savedRoom) {
-        this.trackGateway.onPlaylistChange(room.code, room.playlist)
+        this.playerGateway.onPlaylistChange(room.code, room.playlist)
         return true
       }
     }
@@ -95,7 +95,7 @@ export class TrackService {
     this.sortPlaylist(room.playlist)
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {
-      this.trackGateway.onPlaylistChange(room.code, room.playlist)
+      this.playerGateway.onPlaylistChange(room.code, room.playlist)
       return true
     }
     return false

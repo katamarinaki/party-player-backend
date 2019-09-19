@@ -8,11 +8,13 @@ import { InjectRepository } from '@nestjs/typeorm'
 import * as jwt from 'jsonwebtoken'
 import { AccessToken } from './token/token.class'
 import ParsedRoom from './parsedroom.class'
+import { PlayerGateway } from '../gateways/player.gateway'
 @Injectable()
 export class RoomService {
   constructor(
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
+    private readonly playerGateway: PlayerGateway,
   ) { }
 
   async getById(id: string): Promise<Room> {
@@ -32,9 +34,12 @@ export class RoomService {
     if (!isVoted) {
       room.votesForSkip.push(userID)
       await this.save(room)
+      this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)
       return 'voted'
     } else {
       room.votesForSkip.splice(room.votesForSkip.indexOf(userID), 1)
+      await this.save(room)
+      this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)
       return 'unvoted'
     }
   }

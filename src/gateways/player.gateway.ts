@@ -13,6 +13,10 @@ export class PlayerGateway {
   @WebSocketServer()
   server: Server
 
+  onVoteSkipChange(roomCode: string, votes: number) {
+    this.server.to(roomCode).emit('voteskip', votes)
+  }
+
   onPlaylistChange(roomCode: string, playlist: Track[]) {
     const parsedPlaylist = playlist.map(track => {
       return new ParsedTrack(track)

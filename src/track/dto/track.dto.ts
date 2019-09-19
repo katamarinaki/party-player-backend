@@ -3,9 +3,14 @@ import { IsNotEmpty, IsUrl } from 'class-validator'
 export class TrackDto {
 
   @IsNotEmpty()
-  readonly name: string
+  readonly id: string
 
   @IsNotEmpty()
+  readonly title: string
+
+  @IsNotEmpty()
+  readonly channelTitle: string
+
   @IsUrl()
-  readonly url: string
+  readonly thumbnailSrc: string
 }

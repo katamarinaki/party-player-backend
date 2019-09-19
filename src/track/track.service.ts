@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { TrackDto } from './dto/track.dto'
 import { Room } from '../room/room.entity'
-import { Playlist } from './class/playlist.class'
 import { Track } from './class/track.class'
 import { TrackGateway } from './track.gateway'
 import { RoomService } from '../room/room.service'
@@ -15,7 +14,7 @@ export class TrackService {
 
   async addTrack(trackDto: TrackDto, room: Room): Promise<boolean> {
     const track = new Track(trackDto)
-    room.playlist.tracks.push(track)
+    room.playlist.push(track)
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {
       this.trackGateway.onPlaylistChange(room.code, room.playlist)
@@ -25,7 +24,7 @@ export class TrackService {
   }
 
   async likeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
-    const track = room.playlist.tracks.find((trackObject) => {
+    const track = room.playlist.find((trackObject) => {
       return trackObject.id === trackID
     })
     if (!track) {
@@ -50,7 +49,7 @@ export class TrackService {
   }
 
   async dislikeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
-    const track = room.playlist.tracks.find((trackObject) => {
+    const track = room.playlist.find((trackObject) => {
       return trackObject.id === trackID
     })
     if (!track) {
@@ -74,10 +73,10 @@ export class TrackService {
     return false
   }
 
-  sortPlaylist(playlist: Playlist) {
+  sortPlaylist(playlist: Track[]) {
     const newPlaylist = playlist
-    const firstTrack = newPlaylist.tracks.shift()
-    newPlaylist.tracks.sort((trackA, trackB) => {
+    const firstTrack = newPlaylist.shift()
+    newPlaylist.sort((trackA, trackB) => {
       if ((trackA.likes.length - trackA.dislikes.length) > (trackB.likes.length - trackB.dislikes.length)) {
         return 1
       } else if (trackA.likes.length > trackB.likes.length) {
@@ -87,12 +86,12 @@ export class TrackService {
       }
       return -1
     })
-    newPlaylist.tracks.unshift(firstTrack)
+    newPlaylist.unshift(firstTrack)
     return newPlaylist
   }
 
   async playNextTrack(room: Room): Promise<boolean> {
-    room.playlist.tracks.shift()
+    room.playlist.shift()
     this.sortPlaylist(room.playlist)
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {

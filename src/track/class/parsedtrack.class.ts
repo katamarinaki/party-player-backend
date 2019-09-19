@@ -7,13 +7,13 @@ export class ParsedTrack {
     this.channelTitle = track.channelTitle
     this.thumbnailSrc = track.thumbnailSrc
     this.likes = track.likes.length
-    this.dislikes = track.dislikes.length
+    this.dislikes = track.likes.length
   }
+
   readonly id: string
   readonly title: string
   readonly channelTitle: string
   readonly thumbnailSrc: string
   likes: number
   dislikes: number
-
 }

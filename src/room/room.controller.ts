@@ -4,8 +4,6 @@ import {
   Body,
   BadRequestException,
   Get,
-  UseInterceptors,
-  ClassSerializerInterceptor,
   Param,
 } from '@nestjs/common'
 import { CreateRoomDto } from './dto/create-room.dto'
@@ -38,15 +36,14 @@ export class RoomController {
     }
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   async getRoomByToken(@Body('context') ctx: RoomContext) {
-    return ctx.room
+    return this.roomService.parseRoom(ctx.room)
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get(':code')
   async getRoomByCode(@Param() params: any) {
-    return this.roomService.getByCode(params.code)
+    const room = await this.roomService.getByCode(params.code)
+    return this.roomService.parseRoom(room)
   }
 }

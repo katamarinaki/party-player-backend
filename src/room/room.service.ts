@@ -7,6 +7,7 @@ import { JoinRoomDto } from './dto/join-room.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as jwt from 'jsonwebtoken'
 import { AccessToken } from './token/token.class'
+import ParsedRoom from './parsedroom.class'
 @Injectable()
 export class RoomService {
   constructor(
@@ -15,11 +16,15 @@ export class RoomService {
   ) { }
 
   async getById(id: string): Promise<Room> {
-    return this.roomRepository.findOne(id)
+    return await this.roomRepository.findOne(id)
   }
 
   async getByCode(code: string): Promise<Room> {
-    return this.roomRepository.findOne({ code })
+    return await this.roomRepository.findOne({ code })
+  }
+
+  parseRoom(room: Room): ParsedRoom {
+    return new ParsedRoom(room)
   }
 
   async addUserAndSave(room: Room, userID: string): Promise<Room> {

@@ -11,6 +11,6 @@ import { PlayerGateway } from '../gateways/player.gateway'
   ],
   controllers: [RoomController],
   providers: [RoomService, PlayerGateway],
-  exports: [RoomService],
+  exports: [RoomService, PlayerGateway],
 })
 export class RoomModule {}

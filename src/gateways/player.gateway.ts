@@ -2,16 +2,26 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
+  OnGatewayConnection,
+  OnGatewayDisconnect,
 } from '@nestjs/websockets'
 import { Server } from 'socket.io'
 import { Track } from '../track/class/track.class'
 import { ParsedTrack } from '../track/class/parsedtrack.class'
 
 @WebSocketGateway()
-export class PlayerGateway {
+export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   @WebSocketServer()
   server: Server
+
+  handleConnection(socket: any) {
+    console.log(`client with id ${socket.id} connected`)
+  }
+
+  handleDisconnect(socket: any) {
+    console.log(`client with id ${socket.id} disconnected`)
+  }
 
   onVoteSkipChange(roomCode: string, votes: number) {
     this.server.of(roomCode).emit('voteskip', votes)
@@ -22,6 +32,7 @@ export class PlayerGateway {
     const parsedPlaylist = playlist.map(track => {
       return new ParsedTrack(track)
     })
-    this.server.to(roomCode).emit('playlistchanged', parsedPlaylist)
+    this.server.of(roomCode).emit('playlistchanged', parsedPlaylist)
+    console.log('playlist changed for room ' + roomCode)
   }
 }

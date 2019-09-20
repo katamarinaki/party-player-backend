@@ -9,9 +9,11 @@ export default class ParsedRoom {
     this.playlist = room.playlist.map(track => {
       return new ParsedTrack(track)
     })
+    this.voteskips = room.votesForSkip.length
   }
   name: string
   code: string
   users: number
   playlist: ParsedTrack[]
+  voteskips: number
 }

@@ -14,7 +14,8 @@ export class PlayerGateway {
   server: Server
 
   onVoteSkipChange(roomCode: string, votes: number) {
-    this.server.to(roomCode).emit('voteskip', votes)
+    this.server.of(roomCode).emit('voteskip', votes)
+    // this.server.to(roomCode).emit('voteskip', votes)
   }
 
   onPlaylistChange(roomCode: string, playlist: Track[]) {

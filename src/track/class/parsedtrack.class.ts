@@ -7,7 +7,7 @@ export class ParsedTrack {
     this.channelTitle = track.channelTitle
     this.thumbnailSrc = track.thumbnailSrc
     this.likes = track.likes.length
-    this.dislikes = track.likes.length
+    this.dislikes = track.dislikes.length
   }
 
   readonly id: string

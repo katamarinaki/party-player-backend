@@ -45,7 +45,7 @@ export class TrackService {
         return true
       }
     }
-    return false
+    return true
   }
 
   async dislikeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
@@ -56,10 +56,10 @@ export class TrackService {
       // throw new NotFoundException('Track not found')
       return false
     }
-    const isDisliked = track.likes.includes(userID)
+    const isDisliked = track.dislikes.includes(userID)
     if (!isDisliked) {
       track.dislikes.push(userID)
-      const likeIndex = track.dislikes.indexOf(userID)
+      const likeIndex = track.likes.indexOf(userID)
       if (likeIndex >= 0) {
         track.likes.splice(likeIndex, 1)
       }
@@ -70,20 +70,20 @@ export class TrackService {
         return true
       }
     }
-    return false
+    return true
   }
 
   sortPlaylist(playlist: Track[]) {
     const firstTrack = playlist.shift()
     playlist.sort((trackA, trackB) => {
       if ((trackA.likes.length - trackA.dislikes.length) > (trackB.likes.length - trackB.dislikes.length)) {
-        return 1
+        return -1
       } else if (trackA.likes.length > trackB.likes.length) {
-        return 1
+        return -1
       } else if (trackA.dislikes.length < trackB.dislikes.length) {
-        return 1
+        return -1
       }
-      return -1
+      return 1
     })
     playlist.unshift(firstTrack)
   }

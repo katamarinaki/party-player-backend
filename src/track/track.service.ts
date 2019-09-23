@@ -91,6 +91,7 @@ export class TrackService {
   }
 
   async playNextTrack(room: Room): Promise<boolean> {
+    console.log(room)
     room.playlist.shift()
     this.sortPlaylist(room.playlist)
     room.votesForSkip = []

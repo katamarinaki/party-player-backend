@@ -41,7 +41,7 @@ export class TrackController {
 
   @Get('next')
   @UseGuards(AdminGuard)
-  async playNextTrack(@Body() ctx: RoomContext) {
+  async playNextTrack(@Body('context') ctx: RoomContext) {
     const trackChanged = this.trackService.playNextTrack(ctx.room)
     if (!trackChanged) {
       throw new BadRequestException('next track error')

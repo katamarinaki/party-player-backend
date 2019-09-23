@@ -100,4 +100,23 @@ export class TrackService {
     return false
   }
 
+  async voteForSkip(room: Room, userID: string): Promise<string> {
+    const isVoted = room.votesForSkip.includes(userID)
+    if (!isVoted) {
+      room.votesForSkip.push(userID)
+      if (room.votesForSkip.length * 2 > room.users.length) {
+        this.playNextTrack(room)
+      } else {
+        await this.roomService.save(room)
+        this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)
+      }
+      return 'voted'
+    } else {
+      room.votesForSkip.splice(room.votesForSkip.indexOf(userID), 1)
+      await this.roomService.save(room)
+      this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)
+      return 'unvoted'
+    }
+  }
+
 }

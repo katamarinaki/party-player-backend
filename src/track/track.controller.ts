@@ -47,4 +47,10 @@ export class TrackController {
       throw new BadRequestException('next track error')
     }
   }
+
+  @Post('voteforskip')
+  async voteForSkip(@Body('context') ctx: RoomContext) {
+    const { room, userID } = ctx
+    return this.trackService.voteForSkip(room, userID)
+  }
 }

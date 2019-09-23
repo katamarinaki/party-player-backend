@@ -29,21 +29,6 @@ export class RoomService {
     return new ParsedRoom(room)
   }
 
-  async voteForSkip(room: Room, userID: string): Promise<string> {
-    const isVoted = room.votesForSkip.includes(userID)
-    if (!isVoted) {
-      room.votesForSkip.push(userID)
-      await this.save(room)
-      this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)
-      return 'voted'
-    } else {
-      room.votesForSkip.splice(room.votesForSkip.indexOf(userID), 1)
-      await this.save(room)
-      this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)
-      return 'unvoted'
-    }
-  }
-
   async addUserAndSave(room: Room, userID: string): Promise<Room> {
     room.users.push(userID)
     this.playerGateway.onNewUser(room.code, room.users.length)

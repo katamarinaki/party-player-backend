@@ -97,6 +97,7 @@ export class TrackService {
     room.votesForSkip = []
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {
+      this.playerGateway.onVoteSkipChange(room.code, 0)
       this.playerGateway.onPlaylistChange(room.code, room.playlist)
       return true
     }

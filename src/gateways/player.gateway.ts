@@ -38,7 +38,7 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const parsedPlaylist = playlist.map(track => {
       return new ParsedTrack(track)
     })
-    this.server.to(`/${roomCode}`).emit('playlistchanged', parsedPlaylist)
+    this.server.to(roomCode).emit('playlistchanged', parsedPlaylist)
     console.log('playlist changed for room ' + roomCode)
   }
 }

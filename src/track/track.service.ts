@@ -74,9 +74,8 @@ export class TrackService {
   }
 
   sortPlaylist(playlist: Track[]) {
-    const newPlaylist = playlist
-    const firstTrack = newPlaylist.shift()
-    newPlaylist.sort((trackA, trackB) => {
+    const firstTrack = playlist.shift()
+    playlist.sort((trackA, trackB) => {
       if ((trackA.likes.length - trackA.dislikes.length) > (trackB.likes.length - trackB.dislikes.length)) {
         return 1
       } else if (trackA.likes.length > trackB.likes.length) {
@@ -86,13 +85,11 @@ export class TrackService {
       }
       return -1
     })
-    newPlaylist.unshift(firstTrack)
-    return newPlaylist
+    playlist.unshift(firstTrack)
   }
 
   async playNextTrack(room: Room): Promise<boolean> {
     room.playlist.shift()
-    this.sortPlaylist(room.playlist)
     room.votesForSkip = []
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {

@@ -46,6 +46,7 @@ export class RoomService {
 
   async addUserAndSave(room: Room, userID: string): Promise<Room> {
     room.users.push(userID)
+    this.playerGateway.onNewUser(room.code, room.users.length)
     return await this.roomRepository.save(room)
   }
 

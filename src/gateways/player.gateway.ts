@@ -29,18 +29,19 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log(`client with id ${socket.id} disconnected`)
   }
 
+  onNewUser(roomCode: string, users: number) {
+    this.server.to(roomCode).emit('newuser', users)
+  }
+
   onVoteSkipChange(roomCode: string, votes: number) {
     this.server.to(roomCode).emit('voteskip', votes)
     // this.server.to(roomCode).emit('voteskip', votes)
   }
 
   onPlaylistChange(roomCode: string, playlist: Track[]) {
-    let parsedPlaylist = []
-    if (!playlist.length) {
-      parsedPlaylist = playlist.map(track => {
-        return new ParsedTrack(track)
-      })
-    }
+    const parsedPlaylist = playlist.map(track => {
+      return new ParsedTrack(track)
+    })
     this.server.to(roomCode).emit('playlistchanged', parsedPlaylist)
     console.log('playlist changed for room ' + roomCode)
   }

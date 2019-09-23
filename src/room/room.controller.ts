@@ -5,6 +5,7 @@ import {
   BadRequestException,
   Get,
   Param,
+  NotFoundException,
 } from '@nestjs/common'
 import { CreateRoomDto } from './dto/create-room.dto'
 import { RoomService } from './room.service'
@@ -44,6 +45,9 @@ export class RoomController {
   @Get(':code')
   async getRoomByCode(@Param() params: any) {
     const room = await this.roomService.getByCode(params.code)
+    if (!room) {
+      throw new NotFoundException('Room not found')
+    }
     return this.roomService.parseRoom(room)
   }
 

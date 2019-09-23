@@ -10,7 +10,7 @@ export class TrackService {
   constructor(
     private readonly playerGateway: PlayerGateway,
     private readonly roomService: RoomService,
-  ) {}
+  ) { }
 
   async addTrack(trackDto: TrackDto, room: Room): Promise<boolean> {
     const track = new Track(trackDto)
@@ -91,9 +91,10 @@ export class TrackService {
   }
 
   async playNextTrack(room: Room): Promise<boolean> {
-    console.log(room)
     room.playlist.shift()
-    this.sortPlaylist(room.playlist)
+    if (!room.playlist.length) {
+      this.sortPlaylist(room.playlist)
+    }
     room.votesForSkip = []
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {

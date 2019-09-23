@@ -92,9 +92,7 @@ export class TrackService {
 
   async playNextTrack(room: Room): Promise<boolean> {
     room.playlist.shift()
-    if (!room.playlist.length) {
-      this.sortPlaylist(room.playlist)
-    }
+    this.sortPlaylist(room.playlist)
     room.votesForSkip = []
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {

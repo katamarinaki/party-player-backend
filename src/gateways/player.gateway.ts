@@ -35,9 +35,12 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   onPlaylistChange(roomCode: string, playlist: Track[]) {
-    const parsedPlaylist = playlist.map(track => {
-      return new ParsedTrack(track)
-    })
+    let parsedPlaylist = []
+    if (!playlist.length) {
+      parsedPlaylist = playlist.map(track => {
+        return new ParsedTrack(track)
+      })
+    }
     this.server.to(roomCode).emit('playlistchanged', parsedPlaylist)
     console.log('playlist changed for room ' + roomCode)
   }

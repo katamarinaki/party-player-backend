@@ -12,7 +12,7 @@ export class TrackService {
     private readonly roomService: RoomService,
   ) { }
 
-  async addTrack(trackDto: TrackDto, userID: string, room: Room): Promise<boolean> {
+  async add(trackDto: TrackDto, userID: string, room: Room): Promise<boolean> {
     const track = new Track(trackDto)
     room.playlist.push(track)
     const savedRoom = await this.roomService.save(room)
@@ -23,9 +23,9 @@ export class TrackService {
     return false
   }
 
-  async likeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
+  async like(trackUUID: string, userID: string, room: Room): Promise<boolean> {
     const track = room.playlist.find((trackObject) => {
-      return trackObject.id === trackID
+      return trackObject.uuid === trackUUID
     })
     if (!track) {
       // throw new NotFoundException('Track not found')
@@ -48,9 +48,9 @@ export class TrackService {
     return true
   }
 
-  async dislikeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
+  async dislike(trackUUID: string, userID: string, room: Room): Promise<boolean> {
     const track = room.playlist.find((trackObject) => {
-      return trackObject.id === trackID
+      return trackObject.uuid === trackUUID
     })
     if (!track) {
       // throw new NotFoundException('Track not found')

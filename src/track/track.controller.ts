@@ -12,23 +12,23 @@ export class TrackController {
 
   @Post('add')
   async addTrack(@Body() trackDto: TrackDto, @Body('context') ctx: RoomContext) {
-    const trackAdded = await this.trackService.addTrack(trackDto, ctx.userID, ctx.room)
+    const trackAdded = await this.trackService.add(trackDto, ctx.userID, ctx.room)
     if (!trackAdded) {
       throw new BadRequestException('add track error')
     }
   }
 
   @Post('like')
-  async likeTrack(@Body('trackID') trackID: string, @Body('context') ctx: RoomContext) {
-    const trackLiked = await this.trackService.likeTrack(trackID, ctx.userID, ctx.room)
+  async likeTrack(@Body('trackUUID') trackUUID: string, @Body('context') ctx: RoomContext) {
+    const trackLiked = await this.trackService.like(trackUUID, ctx.userID, ctx.room)
     if (!trackLiked) {
       throw new BadRequestException('like track error')
     }
   }
 
   @Post('dislike')
-  async dislikeTrack(@Body('trackID') trackID: string, @Body('context') ctx: RoomContext) {
-    const trackDisliked = await this.trackService.dislikeTrack(trackID, ctx.userID, ctx.room)
+  async dislikeTrack(@Body('trackUUID') trackUUID: string, @Body('context') ctx: RoomContext) {
+    const trackDisliked = await this.trackService.dislike(trackUUID, ctx.userID, ctx.room)
     if (!trackDisliked) {
       throw new BadRequestException('dislike track error')
     }

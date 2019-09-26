@@ -12,7 +12,7 @@ export class TrackController {
 
   @Post('add')
   async addTrack(@Body() trackDto: TrackDto, @Body('context') ctx: RoomContext) {
-    const trackAdded = await this.trackService.addTrack(trackDto, ctx.room)
+    const trackAdded = await this.trackService.addTrack(trackDto, ctx.userID, ctx.room)
     if (!trackAdded) {
       throw new BadRequestException('add track error')
     }
@@ -42,7 +42,7 @@ export class TrackController {
   @Get('next')
   @UseGuards(AdminGuard)
   async playNextTrack(@Body('context') ctx: RoomContext) {
-    const trackChanged = this.trackService.playNextTrack(ctx.room)
+    const trackChanged = this.trackService.playNextTrack(ctx.room, ctx.userID)
     if (!trackChanged) {
       throw new BadRequestException('next track error')
     }

@@ -39,7 +39,7 @@ export class RoomController {
 
   @Get()
   async getRoomByToken(@Body('context') ctx: RoomContext) {
-    return this.roomService.parseRoom(ctx.room)
+    return this.roomService.parseRoom(ctx.room, ctx.userID)
   }
 
   @Get(':code')
@@ -48,6 +48,6 @@ export class RoomController {
     if (!room) {
       throw new NotFoundException('Room not found')
     }
-    return this.roomService.parseRoom(room)
+    return this.roomService.parseRoom(room, '')
   }
 }

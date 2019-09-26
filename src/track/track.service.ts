@@ -12,12 +12,12 @@ export class TrackService {
     private readonly roomService: RoomService,
   ) { }
 
-  async addTrack(trackDto: TrackDto, room: Room): Promise<boolean> {
+  async addTrack(trackDto: TrackDto, userID: string, room: Room): Promise<boolean> {
     const track = new Track(trackDto)
     room.playlist.push(track)
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {
-      this.playerGateway.onPlaylistChange(room.code, room.playlist)
+      this.playerGateway.onPlaylistChange(room.code, userID, room.playlist)
       return true
     }
     return false
@@ -41,7 +41,7 @@ export class TrackService {
       this.sortPlaylist(room.playlist)
       const savedRoom = await this.roomService.save(room)
       if (savedRoom) {
-        this.playerGateway.onPlaylistChange(room.code, room.playlist)
+        this.playerGateway.onPlaylistChange(room.code, userID, room.playlist)
         return true
       }
     }
@@ -66,7 +66,7 @@ export class TrackService {
       this.sortPlaylist(room.playlist)
       const savedRoom = await this.roomService.save(room)
       if (savedRoom) {
-        this.playerGateway.onPlaylistChange(room.code, room.playlist)
+        this.playerGateway.onPlaylistChange(room.code, userID, room.playlist)
         return true
       }
     }
@@ -88,13 +88,13 @@ export class TrackService {
     playlist.unshift(firstTrack)
   }
 
-  async playNextTrack(room: Room): Promise<boolean> {
+  async playNextTrack(room: Room, userID: string): Promise<boolean> {
     room.playlist.shift()
     room.votesForSkip = []
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {
       this.playerGateway.onVoteSkipChange(room.code, 0)
-      this.playerGateway.onPlaylistChange(room.code, room.playlist)
+      this.playerGateway.onPlaylistChange(room.code, userID, room.playlist)
       return true
     }
     return false
@@ -105,7 +105,7 @@ export class TrackService {
     if (!isVoted) {
       room.votesForSkip.push(userID)
       if (room.votesForSkip.length * 2 > room.users.length) {
-        this.playNextTrack(room)
+        this.playNextTrack(room, userID)
       } else {
         await this.roomService.save(room)
         this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)

@@ -25,8 +25,8 @@ export class RoomService {
     return await this.roomRepository.findOne({ code })
   }
 
-  parseRoom(room: Room): ParsedRoom {
-    return new ParsedRoom(room)
+  parseRoom(room: Room, userID: string): ParsedRoom {
+    return new ParsedRoom(room, userID)
   }
 
   async addUserAndSave(room: Room, userID: string): Promise<Room> {

@@ -2,15 +2,13 @@ import {
   SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
-  OnGatewayConnection,
-  OnGatewayDisconnect,
 } from '@nestjs/websockets'
 import { Server, Client, Socket } from 'socket.io'
 import { Track } from '../track/class/track.class'
 import { ParsedTrack } from '../track/class/parsedtrack.class'
 
 @WebSocketGateway()
-export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export class PlayerGateway {
 
   @WebSocketServer()
   server: Server
@@ -19,14 +17,6 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   handleJoinRoom(socket: Socket, data: any) {
     socket.leaveAll()
     socket.join(data)
-  }
-
-  handleConnection(socket: Socket) {
-    console.log(`client with id ${socket.id} connected`)
-  }
-
-  handleDisconnect(socket: any) {
-    console.log(`client with id ${socket.id} disconnected`)
   }
 
   onNewUser(roomCode: string, users: number) {
@@ -43,6 +33,5 @@ export class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return new ParsedTrack(track, userID)
     })
     this.server.to(roomCode).emit('playlistchanged', parsedPlaylist)
-    console.log('playlist changed for room ' + roomCode)
   }
 }

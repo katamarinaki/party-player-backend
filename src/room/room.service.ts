@@ -1,38 +1,48 @@
-import { Injectable, Next } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { CreateRoomDto } from './dto/create-room.dto'
-import { Repository, ObjectID } from 'typeorm'
+import { Repository } from 'typeorm'
 import { Room } from './room.entity'
 import * as bcrypt from 'bcrypt'
 import { JoinRoomDto } from './dto/join-room.dto'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as jwt from 'jsonwebtoken'
 import { AccessToken } from './token/token.class'
-
+import ParsedRoom from './parsedroom.class'
+import { PlayerGateway } from '../gateways/player.gateway'
 @Injectable()
 export class RoomService {
   constructor(
     @InjectRepository(Room)
-    private readonly roomRepository: Repository<Room>) { }
+    private readonly roomRepository: Repository<Room>,
+    private readonly playerGateway: PlayerGateway,
+  ) { }
 
   async getById(id: string): Promise<Room> {
-    return this.roomRepository.findOne(id)
+    return await this.roomRepository.findOne(id)
   }
 
   async getByCode(code: string): Promise<Room> {
-    return this.roomRepository.findOne({ code })
+    return await this.roomRepository.findOne({ code })
+  }
+
+  parseRoom(room: Room, userID: string): ParsedRoom {
+    return new ParsedRoom(room, userID)
   }
 
   async addUserAndSave(room: Room, userID: string): Promise<Room> {
     room.users.push(userID)
+    this.playerGateway.onNewUser(room.code, room.users.length)
     return await this.roomRepository.save(room)
   }
 
-  async generateToken(room: Room, userID: string): Promise<AccessToken> {
+  async generateToken(room: Room, userID: string, isAdmin: boolean): Promise<AccessToken> {
+    const roomCode = room.code
     const accessToken = jwt.sign({
       roomID: room.id,
+      isAdmin,
       userID,
     }, process.env.TOKEN_SECRET)
-    return { accessToken }
+    return { accessToken, roomCode }
   }
 
   async create(room: CreateRoomDto, userID: string): Promise<Room> {
@@ -44,7 +54,7 @@ export class RoomService {
     const { code, password } = joinRoomDto
     const room = await this.getByCode(code)
     if (room) {
-      const passwordsMatches = await bcrypt.compare(password, room.password)
+      const passwordsMatches = await bcrypt.compare(!password ? '' : password, room.password)
       if (passwordsMatches) {
         return await this.addUserAndSave(room, userID)
       }
@@ -52,13 +62,7 @@ export class RoomService {
     return null
   }
 
-  // async updateRoom(roomCode, createRoomDto: CreateRoomDto): Promise<Room> {
-  //   const updatedRoom = await this.roomModel.findByIdAndUpdate(roomCode, createRoomDto, { new: true });
-  //   return updatedRoom;
-  // }
-
-  // async deleteRoom(roomCode): Promise<any> {
-  //   const deletedRoom = await this.roomModel.findByIdAndRemove(roomCode);
-  //   return deletedRoom;
-  // }
+  async save(room: Room): Promise<Room> {
+    return await this.roomRepository.save(room)
+  }
 }

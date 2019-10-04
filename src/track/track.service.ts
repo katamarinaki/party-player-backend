@@ -1,32 +1,31 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { TrackDto } from './dto/track.dto'
 import { Room } from '../room/room.entity'
-import { Playlist } from './class/playlist.class'
 import { Track } from './class/track.class'
-import { TrackGateway } from './track.gateway'
+import { PlayerGateway } from '../gateways/player.gateway'
 import { RoomService } from '../room/room.service'
 
 @Injectable()
 export class TrackService {
   constructor(
-    private readonly trackGateway: TrackGateway,
+    private readonly playerGateway: PlayerGateway,
     private readonly roomService: RoomService,
-  ) {}
+  ) { }
 
-  async addTrack(trackDto: TrackDto, room: Room): Promise<boolean> {
+  async add(trackDto: TrackDto, userID: string, room: Room): Promise<boolean> {
     const track = new Track(trackDto)
-    room.playlist.tracks.push(track)
+    room.playlist.push(track)
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {
-      this.trackGateway.onPlaylistChange(room.code, room.playlist)
+      this.playerGateway.onPlaylistChange(room.code, userID, room.playlist)
       return true
     }
     return false
   }
 
-  async likeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
-    const track = room.playlist.tracks.find((trackObject) => {
-      return trackObject.id === trackID
+  async like(trackUUID: string, userID: string, room: Room): Promise<boolean> {
+    const track = room.playlist.find((trackObject) => {
+      return trackObject.uuid === trackUUID
     })
     if (!track) {
       // throw new NotFoundException('Track not found')
@@ -42,64 +41,82 @@ export class TrackService {
       this.sortPlaylist(room.playlist)
       const savedRoom = await this.roomService.save(room)
       if (savedRoom) {
-        this.trackGateway.onPlaylistChange(room.code, room.playlist)
+        this.playerGateway.onPlaylistChange(room.code, userID, room.playlist)
         return true
       }
     }
-    return false
+    return true
   }
 
-  async dislikeTrack(trackID: string, userID: string, room: Room): Promise<boolean> {
-    const track = room.playlist.tracks.find((trackObject) => {
-      return trackObject.id === trackID
+  async dislike(trackUUID: string, userID: string, room: Room): Promise<boolean> {
+    const track = room.playlist.find((trackObject) => {
+      return trackObject.uuid === trackUUID
     })
     if (!track) {
       // throw new NotFoundException('Track not found')
       return false
     }
-    const isDisliked = track.likes.includes(userID)
+    const isDisliked = track.dislikes.includes(userID)
     if (!isDisliked) {
       track.dislikes.push(userID)
-      const likeIndex = track.dislikes.indexOf(userID)
+      const likeIndex = track.likes.indexOf(userID)
       if (likeIndex >= 0) {
         track.likes.splice(likeIndex, 1)
       }
       this.sortPlaylist(room.playlist)
       const savedRoom = await this.roomService.save(room)
       if (savedRoom) {
-        this.trackGateway.onPlaylistChange(room.code, room.playlist)
+        this.playerGateway.onPlaylistChange(room.code, userID, room.playlist)
         return true
       }
     }
-    return false
+    return true
   }
 
-  sortPlaylist(playlist: Playlist) {
-    const newPlaylist = playlist
-    const firstTrack = newPlaylist.tracks.shift()
-    newPlaylist.tracks.sort((trackA, trackB) => {
+  sortPlaylist(playlist: Track[]) {
+    const firstTrack = playlist.shift()
+    playlist.sort((trackA, trackB) => {
       if ((trackA.likes.length - trackA.dislikes.length) > (trackB.likes.length - trackB.dislikes.length)) {
-        return 1
+        return -1
       } else if (trackA.likes.length > trackB.likes.length) {
-        return 1
+        return -1
       } else if (trackA.dislikes.length < trackB.dislikes.length) {
-        return 1
+        return -1
       }
-      return -1
+      return 1
     })
-    newPlaylist.tracks.unshift(firstTrack)
-    return newPlaylist
+    playlist.unshift(firstTrack)
   }
 
-  async playNextTrack(room: Room): Promise<boolean> {
-    room.playlist.tracks.shift()
-    this.sortPlaylist(room.playlist)
+  async playNextTrack(room: Room, userID: string): Promise<boolean> {
+    room.playlist.shift()
+    room.votesForSkip = []
     const savedRoom = await this.roomService.save(room)
     if (savedRoom) {
-      this.trackGateway.onPlaylistChange(room.code, room.playlist)
+      this.playerGateway.onVoteSkipChange(room.code, 0)
+      this.playerGateway.onPlaylistChange(room.code, userID, room.playlist)
       return true
     }
     return false
+  }
+
+  async voteForSkip(room: Room, userID: string): Promise<string> {
+    const isVoted = room.votesForSkip.includes(userID)
+    if (!isVoted) {
+      room.votesForSkip.push(userID)
+      if (room.votesForSkip.length * 2 > room.users.length) {
+        this.playNextTrack(room, userID)
+      } else {
+        await this.roomService.save(room)
+        this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)
+      }
+      return 'voted'
+    } else {
+      room.votesForSkip.splice(room.votesForSkip.indexOf(userID), 1)
+      await this.roomService.save(room)
+      this.playerGateway.onVoteSkipChange(room.code, room.votesForSkip.length)
+      return 'unvoted'
+    }
   }
 
 }

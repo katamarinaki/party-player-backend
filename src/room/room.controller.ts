@@ -4,8 +4,8 @@ import {
   Body,
   BadRequestException,
   Get,
-  UseInterceptors,
-  ClassSerializerInterceptor,
+  Param,
+  NotFoundException,
 } from '@nestjs/common'
 import { CreateRoomDto } from './dto/create-room.dto'
 import { RoomService } from './room.service'
@@ -37,9 +37,17 @@ export class RoomController {
     }
   }
 
-  @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  async getRoom(@Body('context') ctx: RoomContext) {
-    return ctx.room
+  async getRoomByToken(@Body('context') ctx: RoomContext) {
+    return this.roomService.parseRoom(ctx.room, ctx.userID)
+  }
+
+  @Get(':code')
+  async getRoomByCode(@Param() params: any) {
+    const room = await this.roomService.getByCode(params.code)
+    if (!room) {
+      throw new NotFoundException('Room not found')
+    }
+    return this.roomService.parseRoom(room, '')
   }
 }

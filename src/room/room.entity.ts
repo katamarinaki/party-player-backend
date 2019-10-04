@@ -1,9 +1,8 @@
 import { Entity, Column, ObjectIdColumn, ObjectID } from 'typeorm'
-import { Exclude } from 'class-transformer'
 import { CreateRoomDto } from './dto/create-room.dto'
 import nanoid from 'nanoid/generate'
 import * as bcrypt from 'bcrypt'
-import { Playlist } from '../track/class/playlist.class'
+import { Track } from 'src/track/class/track.class'
 
 const saltRounds = 10
 
@@ -11,14 +10,12 @@ const saltRounds = 10
 export class Room {
 
   @ObjectIdColumn()
-  @Exclude()
   id: ObjectID
 
   @Column()
   name: string
 
   @Column()
-  @Exclude()
   password: string
 
   @Column({ unique: true })
@@ -28,7 +25,10 @@ export class Room {
   users: string[]
 
   @Column()
-  playlist: Playlist
+  playlist: Track[]
+
+  @Column()
+  votesForSkip: string[]
 
   static async createRoomFromDto(dtoRoom: CreateRoomDto): Promise<Room> {
     const createdRoom = new Room()
@@ -36,7 +36,8 @@ export class Room {
     createdRoom.name = !dtoRoom.name || dtoRoom.name === '' ? `Room ${createdRoom.code}` : dtoRoom.name
     createdRoom.password = await bcrypt.hash(!dtoRoom.password ? '' : dtoRoom.password, saltRounds)
     createdRoom.users = []
-    createdRoom.playlist = new Playlist([])
+    createdRoom.playlist = []
+    createdRoom.votesForSkip = []
     return createdRoom
   }
 }

@@ -77,11 +77,10 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return response
     }
     const sessionDto = new UserSessionDto(decodedToken, socket.id)
-    console.log(sessionDto)
     const room = await this.roomService.addUserSession(sessionDto)
     socket.join(room.code)
     if (!room) {
-      response.setErrorMessage('Room not found')
+      response.setErrorMessage('Room or user in room not found')
       return response
     }
     this.server.to(room.code).emit('usercount', room.getActiveUsersCount())

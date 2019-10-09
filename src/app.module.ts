@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common'
 import { RoomModule } from './room/room.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Connection } from 'typeorm'
+import { Room } from './room/entities/room.entity'
+import { UserSession } from './room/entities/user-session.entity'
 const { DB_USERNAME, DB_PASSWORD, DB_HOST } = process.env
 
 @Module({
@@ -9,7 +11,7 @@ const { DB_USERNAME, DB_PASSWORD, DB_HOST } = process.env
     TypeOrmModule.forRoot({
       type: 'mongodb',
       url: `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/partyplayer?retryWrites=true&w=majority&useUnifiedTopology=true`,
-      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      entities: [Room, UserSession],
       useNewUrlParser: true,
       synchronize: true,
     }),
@@ -18,14 +20,4 @@ const { DB_USERNAME, DB_PASSWORD, DB_HOST } = process.env
 })
 export class AppModule {
   constructor(private readonly connection: Connection) {}
-  // configure(consumer: MiddlewareConsumer) {
-  //   consumer
-  //     .apply(RoomMiddleware)
-  //     .exclude(
-  //       { path: 'rooms/create', method: RequestMethod.POST },
-  //       { path: 'rooms/join', method: RequestMethod.POST },
-  //       { path: 'rooms/:code', method: RequestMethod.GET },
-  //     )
-  //     .forRoutes(RoomController, TrackController)
-  // }
 }

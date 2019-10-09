@@ -74,21 +74,24 @@ export class RoomService {
   }
 
   async addUserSession(userSessionDto: UserSessionDto): Promise<Room> {
-    console.log('add user session')
-    const userSession = UserSession.createFromDto(userSessionDto)
-    console.log(userSession)
-    const savedSession = await this.sessionRepository.save(userSession)
-    console.log(savedSession)
-    console.log('session saved')
-    const room = await this.roomRepository.findOne(savedSession.roomID)
+    const { socketID, roomID, userID } = userSessionDto
+    const room = await this.roomRepository.findOne(roomID)
     if (!room) {
       return null
     }
     const userRecord = room.users.find((record) => {
-      return record.userID === savedSession.userID
+      return record.userID === userID
     })
+    if (!userRecord) {
+      return null
+    }
     userRecord.connected = true
     const savedRoom = await this.roomRepository.save(room)
+    const currentSession = await this.sessionRepository.findOne({ socketID })
+    if (!currentSession) {
+      const userSession = UserSession.createFromDto(userSessionDto)
+      await this.sessionRepository.save(userSession)
+    }
     return savedRoom
   }
 
@@ -104,9 +107,13 @@ export class RoomService {
     const userRecord = room.users.find((record) => {
       return record.userID === userSession.userID
     })
+    if (!userRecord) {
+      return null
+    }
     userRecord.connected = false
+    const savedRoom = await this.roomRepository.save(room)
     await this.sessionRepository.delete({ socketID })
-    return room
+    return savedRoom
   }
 
   async verifyUserSession(socketID: string): Promise<ITokenPayload> {

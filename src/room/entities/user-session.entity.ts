@@ -1,8 +1,11 @@
-import { Entity, Column, PrimaryColumn } from 'typeorm'
-import { UserSessionDto } from '../dto/user-session.dto';
+import { Entity, Column, PrimaryColumn, ObjectIdColumn, ObjectID } from 'typeorm'
+import { UserSessionDto } from '../dto/user-session.dto'
 
 @Entity()
 export class UserSession {
+
+  @ObjectIdColumn()
+  id: ObjectID
 
   @PrimaryColumn()
   socketID: string

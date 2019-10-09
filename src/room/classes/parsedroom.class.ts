@@ -1,11 +1,11 @@
-import { ParsedTrack } from '../track/class/parsedtrack.class'
-import { Room } from './room.entity'
+import { ParsedTrack } from './parsedtrack.class'
+import { Room } from '../entities/room.entity'
 
 export default class ParsedRoom {
   constructor(room: Room, userID: string) {
     this.name = room.name
     this.code = room.code
-    this.users = room.users.length
+    this.users = room.getActiveUsersCount()
     this.playlist = room.playlist.map(track => {
       return new ParsedTrack(track, userID)
     })

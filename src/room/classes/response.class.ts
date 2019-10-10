@@ -2,25 +2,22 @@ export default class Response {
   constructor(event: string) {
     this.event = event
     this.data = null
-    this.error = false
-    this.errorMessage = ''
+    this.errorMessage = null
   }
 
-  setErrorMessage(message: string) {
-    this.error = true
+  throwError(message: string): Response {
     this.errorMessage = message
+    return this
   }
 
-  setData(data: object) {
-    this.error = false
-    this.errorMessage = ''
+  sendData(data: object): Response {
     this.data = {
       ...data,
     }
+    return this
   }
 
   private readonly event: string
   private data: object
-  private error: boolean
   private errorMessage: string
 }

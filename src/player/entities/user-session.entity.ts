@@ -5,7 +5,6 @@ import {
   ObjectIdColumn,
   ObjectID,
   CreateDateColumn,
-  UpdateDateColumn,
   Timestamp,
 } from 'typeorm'
 import UserSessionDto from '../dto/user-session.dto'

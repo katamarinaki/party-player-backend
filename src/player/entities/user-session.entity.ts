@@ -30,9 +30,6 @@ export default class UserSession {
   @CreateDateColumn()
   private createdAt: Timestamp
 
-  @UpdateDateColumn()
-  private updatedAt: Timestamp
-
   getRoomID(): string {
     return this.roomID
   }

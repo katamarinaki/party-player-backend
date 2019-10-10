@@ -17,7 +17,7 @@ import SessionService from './services/session.service'
 import PlaylistService from './services/playlist.service'
 
 @WebSocketGateway()
-export default class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly roomService: RoomService,
     private readonly sessionService: SessionService,

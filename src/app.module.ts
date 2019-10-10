@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
-import RoomModule from './room/room.module'
+import PlayerModule from './player/player.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Connection } from 'typeorm'
-import Room from './room/entities/room.entity'
-import UserSession from './room/entities/user-session.entity'
+import Room from './player/entities/room.entity'
+import UserSession from './player/entities/user-session.entity'
 const { DB_USERNAME, DB_PASSWORD, DB_HOST } = process.env
 
 @Module({
@@ -15,7 +15,7 @@ const { DB_USERNAME, DB_PASSWORD, DB_HOST } = process.env
       useNewUrlParser: true,
       synchronize: true,
     }),
-    RoomModule,
+    PlayerModule,
   ],
 })
 export default class AppModule {

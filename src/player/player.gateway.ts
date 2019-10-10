@@ -15,6 +15,7 @@ import TrackDto from './dto/track.dto'
 import UserSessionDto from './dto/user-session.dto'
 import SessionService from './services/session.service'
 import PlaylistService from './services/playlist.service'
+import Logger from './classes/logger.class'
 
 @WebSocketGateway()
 export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -28,17 +29,17 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
   server: Server
 
   handleConnection(socket: Socket) {
-    console.log(`[${(new Date()).toUTCString()}] User #${socket.id} connected to server.`)
+    Logger.log(`User #${socket.id} connected to server.`)
   }
 
   async handleDisconnect(socket: Socket) {
     const room = await this.sessionService.deleteSession(socket.id)
     if (!room) {
-      console.log(`[${(new Date()).toUTCString()}] User #${socket.id} disconnected from server.`)
+      Logger.log(`User #${socket.id} disconnected from server.`)
       return
     }
     this.server.to(room.code).emit('usercount', room.getActiveUsersCount())
-    console.log(`[${(new Date()).toUTCString()}] User #${socket.id} disconnected from room #${room.code}.`)
+    Logger.log(`User #${socket.id} disconnected from room #${room.code}.`)
   }
 
   @SubscribeMessage('createroom')
@@ -47,7 +48,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
     const userID = nanoid()
     const newRoom = await this.roomService.createRoom(createRoomDto, userID)
     const accessToken = newRoom.generateTokenForUser(userID, true)
-    console.log(`[${(new Date()).toUTCString()}] Room #${newRoom.code} created.`)
+    Logger.log(`Room #${newRoom.code} created.`)
     return response.sendData({
       accessToken,
       roomCode: newRoom.code,
@@ -63,7 +64,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
       return response.throwError('Invalid credentials')
     }
     const accessToken = room.generateTokenForUser(userID, true)
-    console.log(`[${(new Date()).toUTCString()}] Anonymous user joined room #${room.code}.`)
+    Logger.log(`Anonymous user joined room #${room.code}.`)
     return response.sendData({
       accessToken,
     })
@@ -84,7 +85,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
     }
     this.server.to(room.code).emit('usercount', room.getActiveUsersCount())
     const parsedRoom = room.getParsedRoom(decodedToken.userID)
-    console.log(`[${(new Date()).toUTCString()}] User #${socket.id} joined room #${room.code}.`)
+    Logger.log(`User #${socket.id} joined room #${room.code}.`)
     return response.sendData({
       parsedRoom,
     })
@@ -106,7 +107,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
     if (!playlist) {
       return response.throwError('Error adding a track')
     }
-    console.log(`[${(new Date()).toUTCString()}] User #${socket.id} added track to room #${room.code}.`)
+    Logger.log(`User #${socket.id} added track to room #${room.code}.`)
     this.server.to(room.code).emit('playlistchanged', playlist)
   }
 
@@ -126,7 +127,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
     if (!playlist) {
       return response.throwError('Error liking a track')
     }
-    console.log(`[${(new Date()).toUTCString()}] User #${socket.id} liked track from room #${room.code}.`)
+    Logger.log(`User #${socket.id} liked track from room #${room.code}.`)
     this.server.to(room.code).emit('playlistchanged', playlist)
   }
 
@@ -146,7 +147,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
     if (!playlist) {
       return response.throwError('Error disliking a track')
     }
-    console.log(`[${(new Date()).toUTCString()}] User #${socket.id} disliked track from room #${room.code}.`)
+    Logger.log(`User #${socket.id} disliked track from room #${room.code}.`)
     this.server.to(room.code).emit('playlistchanged', playlist)
   }
 
@@ -169,7 +170,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
     if (!playlist) {
       return response.throwError('Error playing next track')
     }
-    console.log(`[${(new Date()).toUTCString()}] Switching current track in room #${room.code}.`)
+    Logger.log(`Switching current track in room #${room.code}.`)
     this.server.to(room.code).emit('votesforskip', room.getVotesForSkip())
     this.server.to(room.code).emit('playlistchanged', playlist)
   }
@@ -197,7 +198,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
       }
       this.server.to(room.code).emit('playlistchanged', playlist)
     }
-    console.log(`[${(new Date()).toUTCString()}] User #${socket.id} voted for skip in room #${room.code}.`)
+    Logger.log(`User #${socket.id} voted for skip in room #${room.code}.`)
     this.server.to(room.code).emit('votesforskip', votescount)
   }
 }

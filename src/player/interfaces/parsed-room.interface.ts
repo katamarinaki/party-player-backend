@@ -1,4 +1,4 @@
-import IParsedTrack from '../interfaces/parsed-track.interface'
+import IParsedTrack from './parsed-track.interface'
 
 export default interface IParsedRoom {
   readonly name: string

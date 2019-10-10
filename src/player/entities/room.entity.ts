@@ -1,4 +1,4 @@
-import { Entity, Column, ObjectIdColumn, ObjectID } from 'typeorm'
+import { Entity, Column, ObjectIdColumn, ObjectID, CreateDateColumn, UpdateDateColumn, Timestamp } from 'typeorm'
 import CreateRoomDto from '../dto/create-room.dto'
 import nanoid from 'nanoid/generate'
 import * as bcrypt from 'bcrypt'
@@ -35,6 +35,12 @@ export default class Room {
 
   @Column()
   private votesForSkip: string[]
+
+  @CreateDateColumn()
+  private createdAt: Timestamp
+
+  @UpdateDateColumn()
+  private updatedAt: Timestamp
 
   async generateFromDto(roomDto: CreateRoomDto) {
     this.code = nanoid('0123456789abcdefghopmn', 4)

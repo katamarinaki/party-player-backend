@@ -50,7 +50,7 @@ export default class SessionService {
     if (!userSession) {
       return null
     }
-    const room = await this.roomService.getRoomByID(userSession.roomID)
+    const room = await this.roomService.getRoomByID(userSession.getRoomID())
     if (!room) {
       return null
     }

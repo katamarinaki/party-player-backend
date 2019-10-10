@@ -189,7 +189,7 @@ export default class RoomGateway implements OnGatewayConnection, OnGatewayDiscon
       return response
     }
     console.log(`[${(new Date()).toUTCString()}] Switching current track in room #${room.code}.`)
-    this.server.to(room.code).emit('votesforskip', room.votesForSkip.length)
+    this.server.to(room.code).emit('votesforskip', room.getVotesForSkip())
     this.server.to(room.code).emit('playlistchanged', playlist)
   }
 
@@ -212,7 +212,7 @@ export default class RoomGateway implements OnGatewayConnection, OnGatewayDiscon
       response.setErrorMessage('Error voting for skip')
       return response
     }
-    if (votescount * 2 > room.votesForSkip.length) {
+    if (votescount * 2 > room.getVotesForSkip()) {
       const playlist = this.playlistService.playNextTrack(room, userID)
       if (!playlist) {
         response.setErrorMessage('Error playing next track')

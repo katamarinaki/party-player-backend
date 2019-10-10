@@ -31,7 +31,7 @@ export default class RoomService {
     const { code, password } = joinRoomDto
     const joinedRoom = await this.roomRepository.findOne({ code })
     if (joinedRoom) {
-      const passwordsMatches = await bcrypt.compare(!password ? '' : password, joinedRoom.password)
+      const passwordsMatches = await bcrypt.compare(!password ? '' : password, joinedRoom.getHashedPassword())
       if (passwordsMatches) {
         joinedRoom.addUser(userID)
         return await this.roomRepository.save(joinedRoom)
@@ -41,13 +41,8 @@ export default class RoomService {
   }
 
   async voteForSkipInRoom(room: Room, userID: string): Promise<number> {
-    const isVoted = room.votesForSkip.includes(userID)
-    if (!isVoted) {
-      room.votesForSkip.push(userID)
-    } else {
-      room.votesForSkip.splice(room.votesForSkip.indexOf(userID), 1)
-    }
+    room.addVoteToskip(userID)
     await this.roomRepository.save(room)
-    return room.votesForSkip.length
+    return room.getVotesForSkip()
   }
 }

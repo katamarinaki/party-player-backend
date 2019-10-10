@@ -13,13 +13,25 @@ export default class Track {
     this.dislikes = []
   }
 
-  readonly uuid: string
+  private readonly uuid: string
   private readonly id: string
-  readonly title: string
-  readonly channelTitle: string
-  readonly thumbnailSrc: string
-  readonly likes: string[]
-  readonly dislikes: string[]
+  private readonly title: string
+  private readonly channelTitle: string
+  private readonly thumbnailSrc: string
+  private readonly likes: string[]
+  private readonly dislikes: string[]
+
+  getUUID(): string {
+    return this.uuid
+  }
+
+  getLikesCount(): number {
+    return this.likes.length
+  }
+
+  getDislikesCount(): number {
+    return this.dislikes.length
+  }
 
   getParsedTrack(userID: string): IParsedTrack {
     const { uuid, id, title, channelTitle, thumbnailSrc } = this

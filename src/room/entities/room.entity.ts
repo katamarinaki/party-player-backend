@@ -13,53 +13,54 @@ const saltRounds = 10
 export default class Room {
 
   @ObjectIdColumn()
-  readonly id: ObjectID
+  private readonly id: ObjectID
 
   @Column()
-  name: string
+  private name: string
 
   @Column()
-  password: string
+  private hashedPassword: string
 
   @Column({ unique: true })
   code: string
 
   @Column()
-  users: Array<{
+  private users: Array<{
     userID: string,
     connected: boolean,
   }>
 
   @Column()
-  playlist: Track[]
+  private playlist: Track[]
 
   @Column()
-  votesForSkip: string[]
+  private votesForSkip: string[]
 
   async generateFromDto(roomDto: CreateRoomDto) {
     this.code = nanoid('0123456789abcdefghopmn', 4)
     this.name = !roomDto.name || roomDto.name === '' ? `Room #${this.code}` : roomDto.name
-    this.password = await bcrypt.hash(!this.password ? '' : this.password, saltRounds)
+    this.hashedPassword = await bcrypt.hash(!roomDto.password ? '' : roomDto.password, saltRounds)
     this.users = []
     this.playlist = []
     this.votesForSkip = []
+  }
+
+  getCode(): string {
+    return this.code
+  }
+
+  getHashedPassword(): string {
+    return this.hashedPassword
+  }
+
+  getVotesForSkip(): number {
+    return this.votesForSkip.length
   }
 
   getActiveUsersCount() {
     return this.users.filter((user) => {
       return user.connected === true
     }).length
-  }
-
-  setUserConnection(userID: string, isConnected: boolean): boolean {
-    const userRecord = this.users.find((record) => {
-      return record.userID === userID
-    })
-    if (userRecord) {
-      userRecord.connected = isConnected
-      return true
-    }
-    return false
   }
 
   getParsedRoom(userID: string): IParsedRoom {
@@ -84,8 +85,19 @@ export default class Room {
 
   getTrackByUUID(trackUUID: string): Track {
     return this.playlist.find((trackObject) => {
-      return trackObject.uuid === trackUUID
+      return trackObject.getUUID() === trackUUID
     })
+  }
+
+  setUserConnection(userID: string, isConnected: boolean): boolean {
+    const userRecord = this.users.find((record) => {
+      return record.userID === userID
+    })
+    if (userRecord) {
+      userRecord.connected = isConnected
+      return true
+    }
+    return false
   }
 
   addUser(userID: string) {
@@ -93,6 +105,19 @@ export default class Room {
       userID,
       connected: false,
     })
+  }
+
+  addTrack(track: Track) {
+    this.playlist.push(track)
+  }
+
+  addVoteToskip(userID: string) {
+    const isVoted = this.votesForSkip.includes(userID)
+    if (!isVoted) {
+      this.votesForSkip.push(userID)
+    } else {
+      this.votesForSkip.splice(this.votesForSkip.indexOf(userID), 1)
+    }
   }
 
   generateTokenForUser(userID: string, isAdmin: boolean): string {
@@ -107,20 +132,16 @@ export default class Room {
   sortPlaylist() {
     const firstTrack = this.playlist.shift()
     this.playlist.sort((trackA, trackB) => {
-      if ((trackA.likes.length - trackA.dislikes.length) > (trackB.likes.length - trackB.dislikes.length)) {
+      if ((trackA.getLikesCount() - trackA.getDislikesCount()) > (trackB.getLikesCount() - trackB.getDislikesCount())) {
         return -1
-      } else if (trackA.likes.length > trackB.likes.length) {
+      } else if (trackA.getLikesCount() > trackB.getLikesCount()) {
         return -1
-      } else if (trackA.dislikes.length < trackB.dislikes.length) {
+      } else if (trackA.getDislikesCount() < trackB.getDislikesCount()) {
         return -1
       }
       return 1
     })
     this.playlist.unshift(firstTrack)
-  }
-
-  addTrack(track: Track) {
-    this.playlist.push(track)
   }
 
   switchToNextTrack() {

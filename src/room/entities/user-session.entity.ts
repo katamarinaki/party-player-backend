@@ -18,6 +18,10 @@ export default class UserSession {
   @Column()
   isAdmin: boolean
 
+  getRoomID(): string {
+    return this.roomID
+  }
+
   generateFromDto(sessionDto: UserSessionDto) {
     this.socketID = sessionDto.socketID
     this.roomID = sessionDto.roomID

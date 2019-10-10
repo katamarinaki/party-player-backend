@@ -1,4 +1,12 @@
-import { Entity, Column, ObjectIdColumn, ObjectID, CreateDateColumn, UpdateDateColumn, Timestamp } from 'typeorm'
+import {
+  Entity,
+  Column,
+  ObjectIdColumn,
+  ObjectID,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Timestamp,
+} from 'typeorm'
 import CreateRoomDto from '../dto/create-room.dto'
 import nanoid from 'nanoid/generate'
 import * as bcrypt from 'bcrypt'

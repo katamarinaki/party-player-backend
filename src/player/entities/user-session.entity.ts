@@ -1,4 +1,13 @@
-import { Entity, Column, PrimaryColumn, ObjectIdColumn, ObjectID } from 'typeorm'
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  ObjectIdColumn,
+  ObjectID,
+  CreateDateColumn,
+  UpdateDateColumn,
+  Timestamp,
+} from 'typeorm'
 import UserSessionDto from '../dto/user-session.dto'
 
 @Entity()
@@ -17,6 +26,12 @@ export default class UserSession {
 
   @Column()
   isAdmin: boolean
+
+  @CreateDateColumn()
+  private createdAt: Timestamp
+
+  @UpdateDateColumn()
+  private updatedAt: Timestamp
 
   getRoomID(): string {
     return this.roomID

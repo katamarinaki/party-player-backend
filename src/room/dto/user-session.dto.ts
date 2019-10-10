@@ -1,6 +1,6 @@
-import { ITokenPayload } from '../interfaces/tokenpayload.interface'
+import ITokenPayload from '../interfaces/token-payload.interface'
 
-export class UserSessionDto {
+export default class UserSessionDto {
   constructor(tokenPayload: ITokenPayload, socketID: string) {
     this.roomID = tokenPayload.roomID
     this.isAdmin = tokenPayload.isAdmin

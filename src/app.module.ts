@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
-import { RoomModule } from './room/room.module'
+import RoomModule from './room/room.module'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { Connection } from 'typeorm'
-import { Room } from './room/entities/room.entity'
-import { UserSession } from './room/entities/user-session.entity'
+import Room from './room/entities/room.entity'
+import UserSession from './room/entities/user-session.entity'
 const { DB_USERNAME, DB_PASSWORD, DB_HOST } = process.env
 
 @Module({
@@ -18,6 +18,6 @@ const { DB_USERNAME, DB_PASSWORD, DB_HOST } = process.env
     RoomModule,
   ],
 })
-export class AppModule {
+export default class AppModule {
   constructor(private readonly connection: Connection) {}
 }

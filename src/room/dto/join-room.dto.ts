@@ -1,8 +1,7 @@
 import { IsNotEmpty } from 'class-validator'
 
-export class JoinRoomDto {
+export default class JoinRoomDto {
   @IsNotEmpty()
   readonly code: string
-
   readonly password: string
 }

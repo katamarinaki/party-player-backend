@@ -1,11 +1,10 @@
 import { Entity, Column, PrimaryColumn, ObjectIdColumn, ObjectID } from 'typeorm'
-import { UserSessionDto } from '../dto/user-session.dto'
+import UserSessionDto from '../dto/user-session.dto'
 
 @Entity()
-export class UserSession {
-
+export default class UserSession {
   @ObjectIdColumn()
-  id: ObjectID
+  private readonly id: ObjectID
 
   @PrimaryColumn()
   socketID: string
@@ -19,13 +18,11 @@ export class UserSession {
   @Column()
   isAdmin: boolean
 
-  static createFromDto(sessionDto: UserSessionDto): UserSession {
-    const createdSession = new UserSession()
-    createdSession.socketID = sessionDto.socketID
-    createdSession.roomID = sessionDto.roomID
-    createdSession.userID = sessionDto.userID
-    createdSession.isAdmin = sessionDto.isAdmin
-    return createdSession
+  generateFromDto(sessionDto: UserSessionDto) {
+    this.socketID = sessionDto.socketID
+    this.roomID = sessionDto.roomID
+    this.userID = sessionDto.userID
+    this.isAdmin = sessionDto.isAdmin
   }
 
 }

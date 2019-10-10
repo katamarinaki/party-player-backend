@@ -6,18 +6,22 @@ import {
   OnGatewayConnection,
 } from '@nestjs/websockets'
 import { Server, Socket } from 'socket.io'
-import { CreateRoomDto } from './dto/create-room.dto'
+import CreateRoomDto from './dto/create-room.dto'
 import nanoid from 'nanoid'
-import { RoomService } from './room.service'
-import { JoinRoomDto } from './dto/join-room.dto'
-import { Response } from './classes/response.class'
-import { TrackDto } from './dto/track.dto'
-import { UserSessionDto } from './dto/user-session.dto';
+import RoomService from './services/room.service'
+import JoinRoomDto from './dto/join-room.dto'
+import Response from './classes/response.class'
+import TrackDto from './dto/track.dto'
+import UserSessionDto from './dto/user-session.dto'
+import SessionService from './services/session.service'
+import PlaylistService from './services/playlist.service'
 
 @WebSocketGateway()
-export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
+export default class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(
     private readonly roomService: RoomService,
+    private readonly sessionService: SessionService,
+    private readonly playlistService: PlaylistService,
   ) { }
 
   @WebSocketServer()
@@ -28,7 +32,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   async handleDisconnect(socket: Socket) {
-    const room = await this.roomService.removeUserSession(socket.id)
+    const room = await this.sessionService.deleteSession(socket.id)
     if (!room) {
       console.log(`[${(new Date()).toUTCString()}] User #${socket.id} disconnected from server.`)
       return
@@ -42,9 +46,9 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const response = new Response('createroom')
     const userID = nanoid()
     const newRoom = await this.roomService.createRoom(createRoomDto, userID)
-    const token = await this.roomService.generateToken(newRoom, userID, true)
+    const accessToken = newRoom.generateTokenForUser(userID, true)
     response.setData({
-      accessToken: token,
+      accessToken,
       roomCode: newRoom.code,
     })
     console.log(`[${(new Date()).toUTCString()}] Room #${newRoom.code} created.`)
@@ -60,9 +64,9 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       response.setErrorMessage('Invalid credentials')
       return response
     }
-    const token = await this.roomService.generateToken(room, userID, false)
+    const accessToken = room.generateTokenForUser(userID, true)
     response.setData({
-      accessToken: token,
+      accessToken,
     })
     console.log(`[${(new Date()).toUTCString()}] Anonymous user joined room #${room.code}.`)
     return response
@@ -71,21 +75,22 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('getroom')
   async getRoom(socket: Socket, token: string) {
     const response = new Response('getroom')
-    const decodedToken = this.roomService.decodeToken(token)
+    const decodedToken = this.sessionService.decodeToken(token)
     if (!decodedToken) {
       response.setErrorMessage('Invalid Token')
       return response
     }
     const sessionDto = new UserSessionDto(decodedToken, socket.id)
-    const room = await this.roomService.addUserSession(sessionDto)
+    const room = await this.sessionService.createSession(sessionDto)
     socket.join(room.code)
     if (!room) {
       response.setErrorMessage('Room or user in room not found')
       return response
     }
     this.server.to(room.code).emit('usercount', room.getActiveUsersCount())
+    const parsedRoom = room.getParsedRoom(decodedToken.userID)
     response.setData({
-      room,
+      parsedRoom,
     })
     console.log(`[${(new Date()).toUTCString()}] User #${socket.id} joined room #${room.code}.`)
     return response
@@ -94,18 +99,18 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('addtrack')
   async addTrack(socket: Socket, trackDto: TrackDto) {
     const response = new Response('addtrack')
-    const userSession = await this.roomService.verifyUserSession(socket.id)
+    const userSession = await this.sessionService.verifySession(socket.id)
     if (!userSession) {
       response.setErrorMessage('User session not found')
       return response
     }
     const { userID, roomID } = userSession
-    const room = await this.roomService.getRoomById(roomID)
+    const room = await this.roomService.getRoomByID(roomID)
     if (!room) {
       response.setErrorMessage('Room not found')
       return response
     }
-    const playlist = await this.roomService.addTrackToRoom(room, userID, trackDto)
+    const playlist = await this.playlistService.addTrack(room, userID, trackDto)
     if (!playlist) {
       response.setErrorMessage('Error adding a track')
       return response
@@ -117,18 +122,18 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('liketrack')
   async likeTrack(socket: Socket, trackUUID: string) {
     const response = new Response('liketrack')
-    const userSession = await this.roomService.verifyUserSession(socket.id)
+    const userSession = await this.sessionService.verifySession(socket.id)
     if (!userSession) {
       response.setErrorMessage('User session not found')
       return response
     }
     const { userID, roomID } = userSession
-    const room = await this.roomService.getRoomById(roomID)
+    const room = await this.roomService.getRoomByID(roomID)
     if (!room) {
       response.setErrorMessage('Room not found')
       return response
     }
-    const playlist = await this.roomService.likeTrackInRoom(room, userID, trackUUID)
+    const playlist = await this.playlistService.likeTrack(room, userID, trackUUID)
     if (!playlist) {
       response.setErrorMessage('Error liking a track')
       return response
@@ -140,18 +145,18 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('disliketrack')
   async dislikeTrack(socket: Socket, trackUUID: string) {
     const response = new Response('disliketrack')
-    const userSession = await this.roomService.verifyUserSession(socket.id)
+    const userSession = await this.sessionService.verifySession(socket.id)
     if (!userSession) {
       response.setErrorMessage('User session not found')
       return response
     }
     const { userID, roomID } = userSession
-    const room = await this.roomService.getRoomById(roomID)
+    const room = await this.roomService.getRoomByID(roomID)
     if (!room) {
       response.setErrorMessage('Room not found')
       return response
     }
-    const playlist = await this.roomService.dislikeTrackInRoom(room, userID, trackUUID)
+    const playlist = await this.playlistService.dislikeTrack(room, userID, trackUUID)
     if (!playlist) {
       response.setErrorMessage('Error disliking a track')
       return response
@@ -163,7 +168,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('playnexttrack')
   async playNextTrack(socket: Socket) {
     const response = new Response('playnexttrack')
-    const userSession = await this.roomService.verifyUserSession(socket.id)
+    const userSession = await this.sessionService.verifySession(socket.id)
     if (!userSession) {
       response.setErrorMessage('User session not found')
       return response
@@ -173,12 +178,12 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       response.setErrorMessage('Access denied')
       return response
     }
-    const room = await this.roomService.getRoomById(roomID)
+    const room = await this.roomService.getRoomByID(roomID)
     if (!room) {
       response.setErrorMessage('Room not found')
       return response
     }
-    const playlist = await this.roomService.playNextTrackInRoom(room, userID)
+    const playlist = await this.playlistService.playNextTrack(room, userID)
     if (!playlist) {
       response.setErrorMessage('Error playing next track')
       return response
@@ -191,13 +196,13 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @SubscribeMessage('voteskip')
   async voteforskip(socket: Socket) {
     const response = new Response('voteskip')
-    const userSession = await this.roomService.verifyUserSession(socket.id)
+    const userSession = await this.sessionService.verifySession(socket.id)
     if (!userSession) {
       response.setErrorMessage('User session not found')
       return response
     }
     const { userID, roomID } = userSession
-    const room = await this.roomService.getRoomById(roomID)
+    const room = await this.roomService.getRoomByID(roomID)
     if (!room) {
       response.setErrorMessage('Room not found')
       return response
@@ -208,7 +213,7 @@ export class RoomGateway implements OnGatewayConnection, OnGatewayDisconnect {
       return response
     }
     if (votescount * 2 > room.votesForSkip.length) {
-      const playlist = this.roomService.playNextTrackInRoom(room, userID)
+      const playlist = this.playlistService.playNextTrack(room, userID)
       if (!playlist) {
         response.setErrorMessage('Error playing next track')
         return response

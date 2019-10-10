@@ -1,4 +1,4 @@
-export class Response {
+export default class Response {
   constructor(event: string) {
     this.event = event
     this.data = null
@@ -19,7 +19,7 @@ export class Response {
     }
   }
 
-  private event: string
+  private readonly event: string
   private data: object
   private error: boolean
   private errorMessage: string

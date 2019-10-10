@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsUrl } from 'class-validator'
 
-export class TrackDto {
+export default class TrackDto {
 
   @IsNotEmpty()
   readonly id: string

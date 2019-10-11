@@ -41,7 +41,7 @@ export default class RoomService {
   }
 
   async voteForSkipInRoom(room: Room, userID: string): Promise<number> {
-    room.addVoteToskip(userID)
+    room.addVoteToSkip(userID)
     await this.roomRepository.save(room)
     return room.getVotesForSkip()
   }

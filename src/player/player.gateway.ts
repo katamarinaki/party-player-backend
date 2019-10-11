@@ -38,7 +38,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
       Logger.log(`User #${socket.id} disconnected from server.`)
       return
     }
-    this.server.to(room.code).emit('usercount', room.getActiveUsersCount())
+    this.server.to(room.code).emit('userscount', room.getActiveUsersCount())
     Logger.log(`User #${socket.id} disconnected from room #${room.code}.`)
   }
 
@@ -83,7 +83,7 @@ export default class PlayerGateway implements OnGatewayConnection, OnGatewayDisc
     if (!room) {
       return response.throwError('Room or user in room not found')
     }
-    this.server.to(room.code).emit('usercount', room.getActiveUsersCount())
+    this.server.to(room.code).emit('userscount', room.getActiveUsersCount())
     const parsedRoom = room.getParsedRoom(decodedToken.userID)
     Logger.log(`User #${socket.id} joined room #${room.code}.`)
     return response.sendData({

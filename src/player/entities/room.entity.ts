@@ -125,11 +125,18 @@ export default class Room {
     this.playlist.push(track)
   }
 
-  addVoteToskip(userID: string) {
+  addVoteToSkip(userID: string) {
     const isVoted = this.votesForSkip.includes(userID)
     if (!isVoted) {
       this.votesForSkip.push(userID)
     } else {
+      this.votesForSkip.splice(this.votesForSkip.indexOf(userID), 1)
+    }
+  }
+
+  removeVoteToSkip(userID: string) {
+    const isVoted = this.votesForSkip.includes(userID)
+    if (isVoted) {
       this.votesForSkip.splice(this.votesForSkip.indexOf(userID), 1)
     }
   }

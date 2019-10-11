@@ -55,6 +55,7 @@ export default class SessionService {
       return null
     }
     room.setUserConnection(userSession.userID, false)
+    room.removeVoteToSkip(userSession.userID)
     const savedRoom = await this.roomService.saveRoom(room)
     await this.sessionRepository.delete({ socketID })
     return savedRoom
